@@ -1,31 +1,31 @@
 import { encode } from "entities";
 
-import { Pokedex } from "@/lib/pokedex-promise-v2";
+import { SITE } from "@/misc/contants";
+import { Pokedex } from "@/misc/pokedex-promise-v2";
 
 const withDefaultProps = ({ url, ...rest }) => ({
   changeFrequency: "yearly",
-  lastModified: Pokedex.date,
+  lastModified: SITE.DATE,
   url: encode(url),
   ...rest,
 });
 
 export default async () => [
-  ...Pokedex.api.routes.map((route) =>
+  ...Pokedex.api.route.names.map((route) =>
     withDefaultProps({
-      url: `${process.env.NEXT_PUBLIC_SITE_URL}/${route}`,
-    })
+      url: `${SITE.URL}/${route}`,
+    }),
   ),
   ...(
     await Promise.all(
-      Pokedex.api.routes.map(async (route) =>
-        (
-          await Pokedex.api(route, "rootEndpoint")()
-        ).results.map((item) =>
-          withDefaultProps({
-            url: `${process.env.NEXT_PUBLIC_SITE_URL}/${route}/${item.name}`,
-          })
-        )
-      )
+      Pokedex.api.route.names.map(async (route) =>
+        (await Pokedex.api.route(route, "rootEndpoint")()).data.results.map(
+          (item) =>
+            withDefaultProps({
+              url: `${SITE.URL}/${route}/${item.name}`,
+            }),
+        ),
+      ),
     )
   ).flat(),
 ];

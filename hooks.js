@@ -1,21 +1,36 @@
 import { useProgress } from "@bprogress/next";
-import { useIsClient as useIsClient1 } from "@uidotdev/usehooks";
-import { useEffect, useEffectEvent } from "react";
+import { useIsClient as internalUseIsClient } from "@uidotdev/usehooks";
+import React from "react";
+import { useHotkeys as internalUseHotkeys } from "react-hotkeys-hook";
 
 export const useProgressWhen = (isLoading) => {
   const progress = useProgress();
 
-  const effectEvent = useEffectEvent(() => {
+  const effectEvent = React.useEffectEvent(() => {
     progress[isLoading ? "start" : "stop"]();
   });
 
-  useEffect(effectEvent);
+  React.useEffect(effectEvent);
 };
 
 export const useIsClient = () => {
-  const isClient = useIsClient1();
+  const isClient = internalUseIsClient();
 
   useProgressWhen(!isClient);
 
   return isClient;
+};
+
+export const useHotkeys = (keys, callback, ...args) => {
+  const progress = useProgress();
+
+  return internalUseHotkeys(
+    keys,
+    async (...args) => {
+      progress.start();
+      await callback(...args);
+      progress.stop();
+    },
+    ...args,
+  );
 };

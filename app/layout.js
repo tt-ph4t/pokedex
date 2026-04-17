@@ -1,7 +1,7 @@
 export const metadata = {
   verification: {
-    // google: "0g4xOknHTsS3aWczVHDj-smtRc9MUBhqsnVTeQVAkKE",
+    google: "",
   },
 };
 
-export { default } from "./layout/export";
+export { default } from "./.layout";

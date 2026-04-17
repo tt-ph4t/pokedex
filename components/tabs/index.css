@@ -7,6 +7,7 @@
     border-radius: 100dvw;
     padding: var(--spacing) calc(var(--spacing) * 2);
     font-weight: normal;
+    user-select: none;
 
     &[aria-selected="true"] {
       background-color: var(--color-fd-foreground);

@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 
-import { Pokedex } from "@/lib/pokedex-promise-v2";
+import { Pokedex } from "@/misc/pokedex-promise-v2";
 
-export const dynamic = "force-dynamic";
-export const GET = () => NextResponse.json(Pokedex.api.routes);
+export const GET = () => NextResponse.json(Pokedex.api.route.names);

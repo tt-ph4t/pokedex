@@ -1,7 +1,7 @@
 "use client";
 
 import { useIntersectionObserver } from "@uidotdev/usehooks";
-import { Activity } from "react";
+import React from "react";
 
 import { useIsClient } from "@/hooks";
 
@@ -10,17 +10,17 @@ const ClientOnly =
   ({ children, fallback }) => {
     const isClient = useIsClient();
 
-    return isClient ? <Activity>{children}</Activity> : fallback;
+    return <React.Activity>{isClient ? children : fallback}</React.Activity>;
   };
 
 export const InView = ({
   children,
-  persist,
+  forceRender,
   root: Root = "div",
   triggerOnce,
   unwrap = true,
 }) => {
-  children = <Activity>{children}</Activity>;
+  children = <React.Activity>{children}</React.Activity>;
 
   const [ref, entry] = useIntersectionObserver({
     threshold: 0,
@@ -35,10 +35,10 @@ export const InView = ({
 
   return (
     <Root ref={ref} {...RootProps}>
-      {persist ? (
-        <Activity mode={RootProps["data-inview"] ? "visible" : "hidden"}>
+      {forceRender ? (
+        <React.Activity mode={RootProps["data-inview"] ? "visible" : "hidden"}>
           {children}
-        </Activity>
+        </React.Activity>
       ) : (
         RootProps["data-inview"] && children
       )}

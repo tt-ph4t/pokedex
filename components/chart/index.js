@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  Chart as Chart1,
+  Chart as InternalChart,
   Series,
   Subtitle,
   Title,
@@ -12,7 +12,7 @@ import { Accessibility } from "@highcharts/react/options/Accessibility";
 import { Exporting } from "@highcharts/react/options/Exporting";
 
 import { ClientInView } from "@/components/in-view";
-import { titleCase } from "@/utils/title-case";
+import { titleCase } from "@/misc/title-case";
 
 import "./index.css";
 import themeOptions from "./theme-options";
@@ -26,7 +26,7 @@ export const Chart = ({
   ...props
 }) => (
   <ClientInView>
-    <Chart1 options={{ ...themeOptions, ...props }}>
+    <InternalChart options={{ ...themeOptions, ...props }}>
       <Title>{titleCase(title)}</Title>
       <Subtitle>{subtitle}</Subtitle>
       {series.map(({ data, ...props }) => (
@@ -42,6 +42,6 @@ export const Chart = ({
       <YAxis {...YAxisProps} />
       <Accessibility />
       <Exporting />
-    </Chart1>
+    </InternalChart>
   </ClientInView>
 );

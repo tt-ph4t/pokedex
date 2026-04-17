@@ -1,8 +1,10 @@
+import { SITE } from "@/misc/contants";
+
 export default () => ({
-  host: process.env.NEXT_PUBLIC_SITE_URL,
+  host: SITE.URL,
   rules: {
     allow: "/",
     userAgent: "*",
   },
-  sitemap: `${process.env.NEXT_PUBLIC_SITE_URL}/sitemap.xml`,
+  sitemap: `${SITE.URL}/sitemap.xml`,
 });

@@ -1,7 +1,7 @@
 import { Callout } from "fumadocs-ui/components/callout";
 
 import { RouterActions } from "@/components/client";
-import { Pokedex } from "@/lib/pokedex-promise-v2";
+import { Pokedex } from "@/misc/pokedex-promise-v2";
 
 export default () => (
   <Pokedex>

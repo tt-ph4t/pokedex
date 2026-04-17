@@ -1,1 +1,3 @@
-export { Fragment as default } from "react";
+import React from "react";
+
+export default React.Fragment;

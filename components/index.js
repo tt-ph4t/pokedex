@@ -1,11 +1,11 @@
 import { chunk, isPlainObject, noop } from "es-toolkit";
-import { Callout } from "fumadocs-ui/components/callout";
-import { Fragment } from "react";
+import { isEmpty } from "es-toolkit/compat";
+import React from "react";
 import romanize from "romanize";
 
 import { ClientInView } from "@/components/in-view";
 import { tabs } from "@/components/tabs";
-import { titleCase } from "@/utils/title-case";
+import { titleCase } from "@/misc/title-case";
 
 export const table = Object.assign(
   (thead = [], tbody = [], tfoot) => {
@@ -37,40 +37,40 @@ export const table = Object.assign(
   {
     pagination: Object.assign(
       (items, { renderRows = noop, showIndex = true, thead }) => {
-        if (items && items.length) {
-          const chunkSize = 100;
+        if (isEmpty(items)) return;
 
-          return tabs(
-            Object.fromEntries(
-              chunk(items, chunkSize).map((items, index1) => [
-                `page ${romanize(index1 + 1)}`,
-                table(
-                  thead,
-                  items.map((context, index2) => {
-                    const [firstRow, ...rows] = renderRows({ context });
+        const chunkSize = 100;
 
-                    return [
-                      <span>
-                        {showIndex && (
-                          <span
-                            style={{
-                              color: "var(--color-fd-muted-foreground)",
-                            }}
-                          >
-                            {index1 * chunkSize + index2 + 1}
-                            {". "}
-                          </span>
-                        )}
-                        {firstRow}
-                      </span>,
-                      ...rows,
-                    ];
-                  })
-                ),
-              ])
-            )
-          );
-        }
+        return tabs(
+          Object.fromEntries(
+            chunk(items, chunkSize).map((items, index1) => [
+              `page ${romanize(index1 + 1)}`,
+              table(
+                thead,
+                items.map((context, index2) => {
+                  const [firstRow, ...rows] = renderRows({ context });
+
+                  return [
+                    <span>
+                      {showIndex && (
+                        <span
+                          style={{
+                            color: "var(--color-fd-muted-foreground)",
+                          }}
+                        >
+                          {index1 * chunkSize + index2 + 1}
+                          {". "}
+                        </span>
+                      )}
+                      {firstRow}
+                    </span>,
+                    ...rows,
+                  ];
+                }),
+              ),
+            ]),
+          ),
+        );
       },
       {
         fromObject: (object, { renderKey, renderValue }) => {
@@ -87,9 +87,9 @@ export const table = Object.assign(
 
           return renderValue(object);
         },
-      }
+      },
     ),
-  }
+  },
 );
 
 export const list = Object.assign(
@@ -106,14 +106,12 @@ export const list = Object.assign(
         const penultimateIndex = items.length - 2;
 
         return (
-          <Fragment key={index}>
+          <React.Fragment key={index}>
             {item}
             {index < penultimateIndex && ", "}
             {index === penultimateIndex && " and "}
-          </Fragment>
+          </React.Fragment>
         );
       }),
-  }
+  },
 );
-
-export const noContent = () => <Callout title="No Content" />;
