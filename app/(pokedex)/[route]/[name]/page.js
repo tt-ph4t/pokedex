@@ -121,7 +121,7 @@ export default async ({ params }) => {
               type="warn"
             >
               This page wasn’t pre-generated because it exceeds the static
-              limit. Content may load slower or change over time.
+              limit.
             </Callout>
           )}
           <React.Activity>{await page.render({ context })}</React.Activity>
