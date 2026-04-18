@@ -19,7 +19,8 @@ export const generateStaticParams = async ({ params }) =>
     (await Pokedex.api.route(params.route, "rootEndpoint")()).data.results,
   )
     .map((item) => ({ name: item.name }))
-    .take(pages[params.route].limit);
+    .take(pages[params.route].limit)
+    .toArray();
 
 export default async ({ params }) => {
   params = await params;
