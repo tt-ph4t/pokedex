@@ -3,7 +3,7 @@ import { isEmpty } from "es-toolkit/compat";
 import React from "react";
 import romanize from "romanize";
 
-import { ClientInView } from "@/components/in-view";
+import { InView } from "@/components/in-view";
 import { tabs } from "@/components/tabs";
 import { titleCase } from "@/misc/title-case";
 
@@ -11,7 +11,7 @@ export const table = Object.assign(
   (thead = [], tbody = [], tfoot) => {
     if (thead.length || tbody.length)
       return (
-        <ClientInView>
+        <InView>
           <table>
             <thead>
               <tr>
@@ -31,7 +31,7 @@ export const table = Object.assign(
             </tbody>
             <tfoot>{tfoot}</tfoot>
           </table>
-        </ClientInView>
+        </InView>
       );
   },
   {

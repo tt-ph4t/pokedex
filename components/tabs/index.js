@@ -3,7 +3,7 @@ import { isEmpty } from "es-toolkit/compat";
 import { Tab, Tabs } from "fumadocs-ui/components/tabs";
 import removeAccents from "remove-accents";
 
-import { ClientInView } from "@/components/in-view";
+import { InView } from "@/components/in-view";
 import { NO_CONTENT } from "@/misc/contants";
 import { titleCase } from "@/misc/title-case";
 
@@ -13,7 +13,7 @@ export const tabs = (tabs) => {
   if (isEmpty(tabs)) return;
 
   return (
-    <ClientInView>
+    <InView>
       <Tabs
         items={Object.keys(tabs).map(titleCase)}
         style={{
@@ -35,11 +35,11 @@ export const tabs = (tabs) => {
               }}
               value={titleCase(a)}
             >
-              <ClientInView>{b ?? NO_CONTENT}</ClientInView>
+              <InView>{b ?? NO_CONTENT}</InView>
             </Tab>
           );
         })}
       </Tabs>
-    </ClientInView>
+    </InView>
   );
 };

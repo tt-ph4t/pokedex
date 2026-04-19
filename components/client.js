@@ -1,13 +1,13 @@
 "use client";
 
-import { useImagePreload } from "@madeinhaus/hooks";
-import { isPlainObject, pick } from "es-toolkit";
+import { useProgress } from "@bprogress/next";
+import { asyncNoop, isPlainObject, pick } from "es-toolkit";
 import { useRouter } from "next/navigation";
+import { Avatar } from "radix-ui";
 
 import { list } from "@/components";
-import { ClientInView } from "@/components/in-view";
+import { InView } from "@/components/in-view";
 import { Link } from "@/components/link";
-import { useProgressWhen } from "@/hooks";
 import { titleCase } from "@/misc/title-case";
 
 export { usePathname as Pathname } from "next/navigation";
@@ -24,25 +24,38 @@ export const RouterActions = () => {
 
 export const LazyImage = ({
   decoding = "async",
+  fallback,
   loading = "lazy",
+  onLoadingStatusChange = asyncNoop,
   src,
+  style,
   ...props
 }) => {
-  const [loaded, ref] = useImagePreload();
-
-  useProgressWhen(!loaded);
+  const progress = useProgress();
 
   return (
-    <ClientInView>
-      <img
-        decoding={decoding}
-        loading={loading}
-        ref={ref}
-        {...(isPlainObject(src)
-          ? pick(src, ["height", "width", "src"])
-          : { src })}
-        {...props}
-      />
-    </ClientInView>
+    <InView>
+      <Avatar.Root>
+        <Avatar.Image
+          decoding={decoding}
+          loading={loading}
+          onLoadingStatusChange={async (status) => {
+            if (status === "loading") progress.start();
+            if (status === "loaded" || status === "error") progress.stop();
+
+            await onLoadingStatusChange(status);
+          }}
+          {...(isPlainObject(src)
+            ? pick(src, ["height", "width", "src"])
+            : { src })}
+          {...props}
+          style={{
+            userSelect: "none",
+            ...style,
+          }}
+        />
+        <Avatar.Fallback>{fallback}</Avatar.Fallback>
+      </Avatar.Root>
+    </InView>
   );
 };

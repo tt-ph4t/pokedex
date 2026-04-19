@@ -6,7 +6,7 @@ import { Callout } from "fumadocs-ui/components/callout";
 import Fuse from "fuse.js";
 import React from "react";
 
-import { ClientInView } from "@/components/in-view";
+import { InView } from "@/components/in-view";
 import { HORIZONTAL_ELLIPSIS_SYMBOL } from "@/misc/contants";
 
 const defaults = {
@@ -40,7 +40,7 @@ export const FuzzySearch = Object.assign(
 
     return (
       <>
-        <ClientInView
+        <InView
           fallback={
             <Callout title={`Loading search${HORIZONTAL_ELLIPSIS_SYMBOL}`} />
           }
@@ -62,7 +62,7 @@ export const FuzzySearch = Object.assign(
               value={state}
             />
           </search>
-        </ClientInView>
+        </InView>
         <React.Activity>
           {isValidDebouncedState ? (
             isEmpty(fuseResult) ? (

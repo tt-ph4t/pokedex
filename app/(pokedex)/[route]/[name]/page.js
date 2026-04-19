@@ -56,6 +56,7 @@ export default async ({ params }) => {
             style={{
               alignSelf: "center",
               margin: "unset",
+              paddingTop: "var(--fd-nav-height)",
               position: "fixed",
             }}
           />
@@ -118,12 +119,9 @@ export default async ({ params }) => {
             (param) => param.name === params.name,
           ) || (
             <Callout
-              title={`Static limit exceeded (${page.limit})`}
+              title={`This page is not pre-rendered (limit: ${page.limit})`}
               type="warn"
-            >
-              This page wasn’t pre-generated because it exceeds the static
-              limit.
-            </Callout>
+            />
           )}
           <React.Activity>{await page.render({ context })}</React.Activity>
         </Pokedex>

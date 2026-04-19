@@ -13,11 +13,11 @@ const ClientOnly =
     return <React.Activity>{isClient ? children : fallback}</React.Activity>;
   };
 
-export const InView = ({
+const InternalInView = ({
   children,
   forceRender,
   root: Root = "div",
-  triggerOnce,
+  triggerOnce = true,
   unwrap = true,
 }) => {
   children = <React.Activity>{children}</React.Activity>;
@@ -46,15 +46,8 @@ export const InView = ({
   );
 };
 
-export const ClientInView = ({
-  children,
-  fallback = children,
-  triggerOnce = true,
-  ...props
-}) => (
+export const InView = ({ children, fallback = children, ...props }) => (
   <ClientOnly fallback={fallback}>
-    <InView triggerOnce={triggerOnce} {...props}>
-      {children}
-    </InView>
+    <InternalInView {...props}>{children}</InternalInView>
   </ClientOnly>
 );
