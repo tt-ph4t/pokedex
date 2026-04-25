@@ -1,5 +1,5 @@
 import { useProgress } from "@bprogress/next";
-import { useIsClient as internalUseIsClient } from "@uidotdev/usehooks";
+import { useIsClient as internalUseIsClient } from "@suspensive/react";
 import React from "react";
 import { useHotkeys as internalUseHotkeys } from "react-hotkeys-hook";
 
