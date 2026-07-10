@@ -1,61 +1,72 @@
 "use client";
 
 import { useProgress } from "@bprogress/next";
-import { asyncNoop, isPlainObject, pick } from "es-toolkit";
+import { useForesight } from "@foresightjs/react";
+import { isPlainObject, pick } from "es-toolkit";
+import FumadocsLink from "fumadocs-core/link";
+import { useLinkStatus } from "next/link";
 import { useRouter } from "next/navigation";
-import { Avatar } from "radix-ui";
+import { Avatar, Slot } from "radix-ui";
+import React from "react";
 
-import { list } from "@/components";
 import { InView } from "@/components/in-view";
-import { Link } from "@/components/link";
-import { titleCase } from "@/misc/title-case";
 
 export { usePathname as Pathname } from "next/navigation";
 
-export const RouterActions = () => {
+export const Link = ({ href, prefetch = false, ...props }) => {
+  useLinkStatus;
+
   const router = useRouter();
 
-  return list(
-    ...Object.entries(pick(router, ["back", "forward", "refresh"])).map(
-      ([a, b]) => <Link onClick={b}>{titleCase(a)}</Link>,
-    ),
-  );
-};
-
-export const LazyImage = ({
-  decoding = "async",
-  fallback,
-  loading = "lazy",
-  onLoadingStatusChange = asyncNoop,
-  src,
-  style,
-  ...props
-}) => {
-  const progress = useProgress();
+  const foresight = useForesight({
+    callback() {
+      if (href && !prefetch)
+        router.prefetch(href, {
+          onInvalidate: this.callback,
+        });
+    },
+  });
 
   return (
-    <InView>
-      <Avatar.Root>
-        <Avatar.Image
-          decoding={decoding}
-          loading={loading}
-          onLoadingStatusChange={async (status) => {
-            if (status === "loading") progress.start();
-            if (status === "loaded" || status === "error") progress.stop();
-
-            await onLoadingStatusChange(status);
-          }}
-          {...(isPlainObject(src)
-            ? pick(src, ["height", "width", "src"])
-            : { src })}
-          {...props}
-          style={{
-            userSelect: "none",
-            ...style,
-          }}
-        />
-        <Avatar.Fallback>{fallback}</Avatar.Fallback>
-      </Avatar.Root>
-    </InView>
+    <Slot.Root ref={foresight.elementRef}>
+      <FumadocsLink href={href} prefetch={prefetch} {...props} />
+    </Slot.Root>
   );
 };
+
+export const LazyImage = InView.with(({ fallback, src, ...props }) => {
+  const progress = useProgress();
+
+  const defaultProps = React.useMemo(
+    () =>
+      isPlainObject(src)
+        ? pick(src, ["height", "width", "src"])
+        : {
+            src,
+          },
+    [src],
+  );
+
+  return (
+    <Avatar.Root>
+      <Slot.Root
+        {...defaultProps}
+        decoding="async"
+        loading="lazy"
+        onDoubleClick={() => {
+          prompt(undefined, defaultProps.src);
+        }}
+        onLoadingStatusChange={(status) => {
+          if (status === "loading") progress.start();
+          if (status === "loaded" || status === "error") progress.stop();
+        }}
+        style={{
+          userSelect: "none",
+        }}
+      >
+        <Avatar.Image {...props} />
+      </Slot.Root>
+      <Avatar.Fallback>{fallback}</Avatar.Fallback>
+    </Avatar.Root>
+  );
+});

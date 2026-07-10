@@ -1,7 +1,8 @@
 import { useProgress } from "@bprogress/next";
-import { useDebounce } from "@uidotdev/usehooks";
 import { noop } from "es-toolkit";
 import { isEmpty } from "es-toolkit/compat";
+import { useCompositionInput } from "foxact/use-composition-input";
+import { useDebouncedState } from "foxact/use-debounced-state";
 import { Callout } from "fumadocs-ui/components/callout";
 import Fuse from "fuse.js";
 import React from "react";
@@ -10,48 +11,52 @@ import { InView } from "@/components/in-view";
 import { HORIZONTAL_ELLIPSIS_SYMBOL } from "@/misc/contants";
 
 const defaults = {
+  emptyState: <Callout title="No results" />,
   fuseResult: [],
+  inputValue: "",
+  loading: <Callout title={`Loading search${HORIZONTAL_ELLIPSIS_SYMBOL}`} />,
   select: ({ fuseResult }) => fuseResult,
 };
 
+const Input = ({ onChange, ...props }) => (
+  <input {...useCompositionInput(onChange)} {...props} />
+);
+
 export const FuzzySearch = Object.assign(
-  ({ fallback, fuse, render = noop, select = defaults.select }) => {
-    const [state, setState] = React.useState("");
-    const debouncedState = useDebounce(state, 300);
-    const isValidDebouncedState = !isEmpty(debouncedState);
+  ({
+    emptyState = defaults.emptyState,
+    fallback,
+    fuse,
+    loading = defaults.loading,
+    render = noop,
+    select = defaults.select,
+  }) => {
+    const [state, setState] = useDebouncedState(defaults.inputValue, 200);
+    const isValidState = !isEmpty(state);
     const progress = useProgress();
 
     const fuseResult = React.useMemo(() => {
       let fuseResult = defaults.fuseResult;
 
-      React.startTransition(() => {
-        progress.start();
+      progress.start();
 
-        if (isValidDebouncedState)
-          fuseResult = select({
-            fuseResult: fuse.search(debouncedState),
-          });
+      if (isValidState)
+        fuseResult = select({
+          fuseResult: fuse.search(state),
+        });
 
-        progress.stop();
-      });
+      progress.stop();
 
       return fuseResult;
-    }, [debouncedState, isValidDebouncedState, select, fuse, progress]);
+    }, [state, isValidState, select, fuse, progress]);
 
     return (
       <>
-        <InView
-          fallback={
-            <Callout title={`Loading search${HORIZONTAL_ELLIPSIS_SYMBOL}`} />
-          }
-        >
+        <InView fallback={loading}>
           <search>
-            <input
-              onChange={(event) => {
-                React.startTransition(() => {
-                  setState(event.target.value);
-                });
-              }}
+            <Input
+              defaultValue={defaults.inputValue}
+              onChange={setState}
               placeholder="Search"
               style={{
                 border: "1px solid var(--color-fd-border)",
@@ -59,33 +64,32 @@ export const FuzzySearch = Object.assign(
                 paddingInline: "calc(var(--spacing) * 2)",
               }}
               type="search"
-              value={state}
             />
           </search>
         </InView>
         <React.Activity>
-          {isValidDebouncedState ? (
-            isEmpty(fuseResult) ? (
-              <Callout title="No results found" />
-            ) : (
-              render({ fuseResult })
-            )
-          ) : (
-            fallback
-          )}
+          {isValidState
+            ? isEmpty(fuseResult)
+              ? emptyState
+              : render({
+                  fuseResult,
+                })
+            : fallback}
         </React.Activity>
       </>
     );
   },
   {
-    createFuse: (docs, options, ...args) =>
+    createFuse: (docs, options = {}) =>
       new Fuse(
         docs,
         {
           useTokenSearch: true,
           ...options,
         },
-        ...args,
+        isEmpty(options.keys)
+          ? undefined
+          : Fuse.createIndex(options.keys, docs),
       ),
   },
 );

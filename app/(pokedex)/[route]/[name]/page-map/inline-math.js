@@ -3,9 +3,7 @@ import { InlineMath } from "react-katex";
 
 import { InView } from "@/components/in-view";
 
-export default (
-  math, // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/raw
-) => (
+export default (math) => (
   <InView>
     <span title={math}>
       <InlineMath errorColor="var(--color-fd-error)" math={math} />

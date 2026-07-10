@@ -3,8 +3,8 @@
 import { mapValues } from "es-toolkit";
 
 import { table } from "@/components";
+import { Link } from "@/components/client";
 import { FuzzySearch } from "@/components/fuzzy-search";
-import { Link } from "@/components/link";
 import { tabs } from "@/components/tabs";
 import { Pokedex } from "@/misc/pokedex-promise-v2";
 import { titleCase } from "@/misc/title-case";
@@ -44,11 +44,11 @@ const fallback = tabs(
     tabs(
       mapValues(routes, async ({ rootEndpoint }, route) =>
         table.pagination((await Pokedex.api[rootEndpoint]()).data.results, {
-          renderRows: ({ context }) => [
+          renderCells: ({ context }) => (
             <Link href={`/${route}/${context.name}`}>
               {titleCase(context.name)}
-            </Link>,
-          ],
+            </Link>
+          ),
         }),
       ),
     ),
@@ -61,9 +61,9 @@ const render = ({ fuseResult }) =>
       tabs(
         mapValues(a, (a, b) =>
           table.pagination(a, {
-            renderRows: ({ context }) => [
-              <Link href={`/${b}/${context}`}>{titleCase(context)}</Link>,
-            ],
+            renderCells: ({ context }) => (
+              <Link href={`/${b}/${context}`}>{titleCase(context)}</Link>
+            ),
           }),
         ),
       ),

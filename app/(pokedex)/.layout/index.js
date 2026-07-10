@@ -1,9 +1,7 @@
 import { DocsPage } from "fumadocs-ui/page";
 
-import { LazyImage } from "@/components/client";
-import { SITE } from "@/misc/contants";
+import { API_VERSION_PATH, SITE } from "@/misc/contants";
 
-import catDance from "./cat-dance.gif";
 import DocsLayout from "./docs-layout";
 import nav from "./nav";
 
@@ -11,15 +9,10 @@ export default ({ children }) => (
   <DocsLayout
     githubUrl="https://github.com/tt-ph4t/pokedex"
     nav={{
-      title: <LazyImage src={catDance} title={SITE.TITLE} width={30} />,
-      url: "/random/pokemon",
+      title: <span title={API_VERSION_PATH}>{SITE.TITLE}</span>,
     }}
     tree={{
       children: [
-        {
-          name: "Home",
-          url: "/",
-        },
         {
           children: [
             {
@@ -29,7 +22,7 @@ export default ({ children }) => (
             {
               children: [
                 {
-                  name: "Page",
+                  name: API_VERSION_PATH,
                   url: "/api-page",
                 },
                 {
@@ -65,14 +58,23 @@ export default ({ children }) => (
               url: "/robots.txt",
             },
           ],
-          name: "More",
+          defaultOpen: true,
+          name: "Misc",
           type: "folder",
         },
         ...nav,
       ],
     }}
   >
-    <div className="prose" style={{ width: "100%" }}>
+    <div
+      className="prose"
+      style={{
+        "--size": "100%",
+
+        height: "var(--size)",
+        width: "var(--size)",
+      }}
+    >
       <DocsPage>{children}</DocsPage>
     </div>
   </DocsLayout>

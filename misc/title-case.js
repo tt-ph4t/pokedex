@@ -1,7 +1,7 @@
 import { noCase, split } from "change-case";
 import deromanize from "deromanize";
 import removeAccents from "remove-accents";
-import { titleCase as internalTitleCase, WORD_SEPARATORS } from "title-case";
+import { titleCase as title, WORD_SEPARATORS } from "title-case";
 
 import { SITE } from "./contants";
 
@@ -18,7 +18,7 @@ const terms = {
 export const titleCase = (input, options) => {
   try {
     return split(
-      internalTitleCase(input, {
+      title(input, {
         ...defaultOptions,
         ...options,
       }),

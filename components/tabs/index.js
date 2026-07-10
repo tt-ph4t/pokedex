@@ -13,33 +13,31 @@ export const tabs = (tabs) => {
   if (isEmpty(tabs)) return;
 
   return (
-    <InView>
-      <Tabs
-        items={Object.keys(tabs).map(titleCase)}
-        style={{
-          backgroundColor: "unset",
-          border: "unset",
-        }}
-      >
-        {Object.entries(tabs).map(([a, b]) => {
-          const id = kebabCase(removeAccents(a));
+    <Tabs
+      items={Object.keys(tabs).map(titleCase)}
+      style={{
+        backgroundColor: "unset",
+        border: "unset",
+      }}
+    >
+      {Object.entries(tabs).map(([a, b]) => {
+        const id = kebabCase(removeAccents(a));
 
-          return (
-            <Tab
-              id={id}
-              key={id}
-              style={{
-                backgroundColor: "unset",
-                overflow: "auto",
-                paddingInline: "unset",
-              }}
-              value={titleCase(a)}
-            >
-              <InView>{b ?? NO_CONTENT}</InView>
-            </Tab>
-          );
-        })}
-      </Tabs>
-    </InView>
+        return (
+          <Tab
+            id={id}
+            key={id}
+            style={{
+              backgroundColor: "unset",
+              overflow: "auto",
+              paddingInline: "unset",
+            }}
+            value={titleCase(a)}
+          >
+            <InView>{b ?? NO_CONTENT}</InView>
+          </Tab>
+        );
+      })}
+    </Tabs>
   );
 };

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
-import { list, table } from "@/components";
-import { Link } from "@/components/link";
+import { table } from "@/components";
+import { Link } from "@/components/client";
 import { getOgUrl } from "@/misc";
 import { Pokedex } from "@/misc/pokedex-promise-v2";
 import { titleCase } from "@/misc/title-case";
@@ -13,17 +13,15 @@ export default async ({ params }) => {
 
   if (Pokedex.api.route.names.includes(params.route)) {
     const title = `${titleCase(`${params.route} list`)}`;
-    const { data } = await Pokedex.api.route(params.route, "rootEndpoint")();
+    const { data } = await Pokedex.api.route(params.route)();
     const names = data.results.map((item) => item.name);
 
     return (
-      <Pokedex
+      <Pokedex.Page
         canonical={`/${params.route}`}
         descriptions={{
           count: data.count,
-          links: list.inline(
-            <Link href={`/random/${params.route}`}>Random</Link>,
-          ),
+          links: <Link href={`/random/${params.route}`}>Random</Link>,
         }}
         ogUrl={getOgUrl({
           title,
@@ -32,7 +30,11 @@ export default async ({ params }) => {
         renderTitle={() => (
           <>
             {titleCase(params.route)}{" "}
-            <span style={{ color: "var(--color-fd-muted-foreground)" }}>
+            <span
+              style={{
+                color: "var(--color-fd-muted-foreground)",
+              }}
+            >
               List
             </span>
           </>
@@ -42,14 +44,14 @@ export default async ({ params }) => {
         <Search
           docs={names}
           fallback={table.pagination(names, {
-            renderRows: ({ context }) => [
+            renderCells: ({ context }) => (
               <Link href={`/${params.route}/${context}`}>
                 {titleCase(context)}
-              </Link>,
-            ],
+              </Link>
+            ),
           })}
         />
-      </Pokedex>
+      </Pokedex.Page>
     );
   } else notFound();
 };

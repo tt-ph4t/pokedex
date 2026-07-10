@@ -2,6 +2,7 @@ import { uniqBy } from "es-toolkit";
 import { get, isArray } from "es-toolkit/compat";
 import { notFound } from "next/navigation";
 import PokeAPI from "pokedex-promise-v2";
+import React from "react";
 
 import { API_VERSION_PATH } from "@/misc/contants";
 
@@ -15,6 +16,7 @@ const routes = Object.fromEntries(
   Object.values(routeGroups).flatMap(Object.entries),
 );
 
+const routeNames = Object.keys(routes);
 const api = {};
 
 for (const [route, endpoints] of Object.entries({
@@ -24,7 +26,7 @@ for (const [route, endpoints] of Object.entries({
   },
 }))
   for (const endpoint of Object.values(endpoints))
-    api[endpoint] = async (...args) => {
+    api[endpoint] = React.cache(async (...args) => {
       try {
         const data = await pokeAPI[endpoint](...args);
 
@@ -38,17 +40,31 @@ for (const [route, endpoints] of Object.entries({
               (item) => item.name,
             )).length;
 
-        return { data };
+        return {
+          data,
+        };
       } catch (error) {
         console.error(error);
         notFound();
       }
-    };
+    });
 
 export default {
   ...api,
-  route: Object.assign((...path) => api[get(routes, path)], {
-    groups: routeGroups,
-    names: Object.keys(routes),
-  }),
+  route: Object.assign(
+    (...path) =>
+      api[get(routes, path.length === 1 ? [...path, "rootEndpoint"] : path)],
+    {
+      configs: {
+        dynamicParams: false,
+        generateStaticParams: React.cache(() =>
+          routeNames.map((route) => ({
+            route,
+          })),
+        ),
+      },
+      groups: routeGroups,
+      names: routeNames,
+    },
+  ),
 };

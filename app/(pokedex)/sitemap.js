@@ -19,11 +19,10 @@ export default async () => [
   ...(
     await Promise.all(
       Pokedex.api.route.names.map(async (route) =>
-        (await Pokedex.api.route(route, "rootEndpoint")()).data.results.map(
-          (item) =>
-            withDefaultProps({
-              url: `${SITE.URL}/${route}/${item.name}`,
-            }),
+        (await Pokedex.api.route(route)()).data.results.map((item) =>
+          withDefaultProps({
+            url: `${SITE.URL}/${route}/${item.name}`,
+          }),
         ),
       ),
     )

@@ -1,5 +1,5 @@
 // https://www.highcharts.com/samples/highcharts/css/palette-helper
-// https://github.com/highcharts/highcharts/blob/ad4f5d9c525f6b0de1ce8f2a05ff3339bbe05f89/ts/Extensions/Themes/Adaptive.ts
+// https://github.com/highcharts/highcharts/blob/bc36d0dae13460d8bdb857893ebf3efe8bb3e506/ts/Extensions/Themes/Adaptive.ts
 
 export default {
   accessibility: {
@@ -236,12 +236,7 @@ export default {
   },
   pane: {
     background: {
-      backgroundColor: {
-        stops: [
-          [0, "var(--highcharts-background-color)"],
-          [1, "var(--highcharts-neutral-color-10)"],
-        ],
-      },
+      backgroundColor: "var(--highcharts-neutral-color-5)",
       borderColor: "var(--highcharts-neutral-color-20)",
     },
   },
@@ -441,8 +436,8 @@ export default {
         },
       },
       pivot: {
-        backgroundColor: "var(--highcharts-neutral-color-100)",
-        borderColor: "var(--highcharts-neutral-color-20)",
+        backgroundColor: "var(--highcharts-background-color)",
+        borderColor: "var(--highcharts-neutral-color-100)",
       },
     },
     heatmap: {

@@ -1,4 +1,5 @@
-:root {
+:root,
+.highcharts-light {
   /* Colors for data series and points */
   --highcharts-color-0: #2caffe;
   --highcharts-color-1: #544fc5;
@@ -77,33 +78,46 @@
   --highcharts-annotation-color-3: rgba(156, 229, 161, 0.4);
   --highcharts-annotation-color-4: rgba(162, 241, 130, 0.4);
   --highcharts-annotation-color-5: rgba(169, 255, 101, 0.4);
+}
 
-  &.dark {
-    /* Colors for data series and points */
-    --highcharts-color-1: #00e272;
-    --highcharts-color-2: #efdf00;
+:root.dark,
+.highcharts-dark {
+  /* Colors for data series and points */
+  --highcharts-color-1: #00e272;
+  --highcharts-color-2: #efdf00;
 
-    /* UI colors */
-    --highcharts-background-color: #141414;
+  /* UI colors */
+  --highcharts-background-color: #141414;
 
-    /*
+  /*
         Neutral color variations
         https://www.highcharts.com/samples/highcharts/css/palette-helper
     */
-    --highcharts-neutral-color-100: #ffffff;
-    --highcharts-neutral-color-80: #d0d0d0;
-    --highcharts-neutral-color-60: #a1a1a1;
-    --highcharts-neutral-color-40: #727272;
-    --highcharts-neutral-color-20: #434343;
-    --highcharts-neutral-color-10: #2c2c2c;
-    --highcharts-neutral-color-5: #202020;
-    --highcharts-neutral-color-3: #1b1b1b;
+  --highcharts-neutral-color-100: #ffffff;
+  --highcharts-neutral-color-80: #d0d0d0;
+  --highcharts-neutral-color-60: #a1a1a1;
+  --highcharts-neutral-color-40: #727272;
+  --highcharts-neutral-color-20: #434343;
+  --highcharts-neutral-color-10: #2c2c2c;
+  --highcharts-neutral-color-5: #202020;
+  --highcharts-neutral-color-3: #1b1b1b;
 
-    /* Highlight color variations */
-    --highcharts-highlight-color-100: #2caffe;
-    --highcharts-highlight-color-80: #2790cf;
-    --highcharts-highlight-color-60: #2271a0;
-    --highcharts-highlight-color-20: #193343;
-    --highcharts-highlight-color-10: #16242b;
-  }
+  /* Highlight color variations */
+  --highcharts-highlight-color-100: #2caffe;
+  --highcharts-highlight-color-80: #2790cf;
+  --highcharts-highlight-color-60: #2271a0;
+  --highcharts-highlight-color-20: #193343;
+  --highcharts-highlight-color-10: #16242b;
+}
+
+.highcharts-container {
+  color-scheme: light dark;
+}
+
+.highcharts-light .highcharts-container {
+  color-scheme: light;
+}
+
+.highcharts-dark .highcharts-container {
+  color-scheme: dark;
 }

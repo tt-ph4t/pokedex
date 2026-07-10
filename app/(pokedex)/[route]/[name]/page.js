@@ -2,24 +2,22 @@ import Cycled from "cycled";
 import { pick } from "es-toolkit";
 import { Callout } from "fumadocs-ui/components/callout";
 import { notFound } from "next/navigation";
-import React from "react";
 
 import { list } from "@/components";
-import { Link } from "@/components/link";
+import { Link } from "@/components/client";
 import { getOgUrl } from "@/misc";
 import { Pokedex } from "@/misc/pokedex-promise-v2";
 import { titleCase } from "@/misc/title-case";
 
-import HotkeysLink from "./hotkeys-link";
-import pages from "./pages";
-import { Avatar } from "./pages/misc";
+import pageMap from "./page-map";
+import { Avatar } from "./page-map/misc";
 
 export const generateStaticParams = async ({ params }) =>
-  Iterator.from(
-    (await Pokedex.api.route(params.route, "rootEndpoint")()).data.results,
-  )
-    .map((item) => ({ name: item.name }))
-    .take(pages[params.route].limit)
+  Iterator.from((await Pokedex.api.route(params.route)()).data.results)
+    .map((item) => ({
+      name: item.name,
+    }))
+    .take(pageMap[params.route].limit)
     .toArray();
 
 export default async ({ params }) => {
@@ -29,11 +27,11 @@ export default async ({ params }) => {
     // /move-category/damage%2Braise > /move-category/damage+raise
     decodeURIComponent(params.name);
 
-  const { data } = await Pokedex.api.route(params.route, "rootEndpoint")();
+  const { data } = await Pokedex.api.route(params.route)();
   const names = data.results.map((item) => item.name);
 
   if (names.includes(params.name)) {
-    const page = pages[params.route];
+    const page = pageMap[params.route];
     const cycled = new Cycled(names);
     const index = names.findIndex((name) => name === params.name);
     const item = data.results[index];
@@ -43,9 +41,13 @@ export default async ({ params }) => {
     const context = {
       data: (await Pokedex.api.getResource(item.url)).data,
       index,
+      ...item,
     };
 
-    const avatarSrc = page.getAvatarSrc({ context });
+    const avatarSrc = page.getAvatarSrc({
+      context,
+    });
+
     const [nextName, previousName] = [cycled.peek(1), cycled.peek(-1)];
 
     return (
@@ -61,40 +63,31 @@ export default async ({ params }) => {
             }}
           />
         )}
-        <Pokedex
+        <Pokedex.Page
           canonical={`/${params.route}/${params.name}`}
-          descriptions={{
+          favicon={page.getFavicon({
+            context,
+          })}
+          leftDescriptions={{
             index: (
               <>
                 {index + 1}
-                <span style={{ color: "var(--color-fd-muted-foreground)" }}>
+                <span
+                  style={{
+                    color: "var(--color-fd-muted-foreground)",
+                  }}
+                >
                   /{data.count}
                 </span>
               </>
             ),
             ...pick(context.data, ["game_index", "id", "order"]),
-            previous: (
-              <HotkeysLink
-                href={`/${params.route}/${previousName}`}
-                keys="left"
-              >
-                {titleCase(previousName)}
-              </HotkeysLink>
-            ),
-            // eslint-disable-next-line perfectionist/sort-objects
-            next: (
-              <HotkeysLink href={`/${params.route}/${nextName}`} keys="right">
-                {titleCase(nextName)}
-              </HotkeysLink>
-            ),
-            // eslint-disable-next-line perfectionist/sort-objects
             links: list.inline(
               <Link href={`/${params.route}`}>List</Link>,
               <Link href={`/random/${params.route}`}>Random</Link>,
               <Link href={item.url}>API</Link>,
             ),
           }}
-          favicon={page.getFavicon({ context })}
           ogUrl={getOgUrl({
             title: titleCase(params.name),
             topic: titleCase(params.route),
@@ -108,23 +101,39 @@ export default async ({ params }) => {
                 }}
               >
                 {" ("}
-                {titleCase(params.route)}
-                {")"}
+                {titleCase(params.route)})
               </span>
             </>
           )}
+          rightDescriptions={{
+            previous: (
+              <Link href={`/${params.route}/${previousName}`}>
+                {titleCase(previousName)}
+              </Link>
+            ),
+            // eslint-disable-next-line perfectionist/sort-objects
+            next: (
+              <Link href={`/${params.route}/${nextName}`}>
+                {titleCase(nextName)}
+              </Link>
+            ),
+          }}
           title={`${titleCase(params.name)} (${titleCase(params.route)})`}
         >
-          {(await generateStaticParams({ params })).some(
-            (param) => param.name === params.name,
-          ) || (
+          {(
+            await generateStaticParams({
+              params,
+            })
+          ).some((param) => param.name === params.name) || (
             <Callout
               title={`This page is not pre-rendered (limit: ${page.limit})`}
               type="warn"
             />
           )}
-          <React.Activity>{await page.render({ context })}</React.Activity>
-        </Pokedex>
+          {await page.render({
+            context,
+          })}
+        </Pokedex.Page>
       </>
     );
   } else notFound();

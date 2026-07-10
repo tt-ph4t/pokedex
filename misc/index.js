@@ -1,5 +1,3 @@
-import { encode } from "entities";
-
 import { SITE } from "./contants";
 
 export const getOgUrl = (searchParams) => {
@@ -8,5 +6,5 @@ export const getOgUrl = (searchParams) => {
   for (const [name, value] of Object.entries(searchParams))
     url.searchParams.set(name, value);
 
-  return encode(url.toString());
+  return url.toString();
 };

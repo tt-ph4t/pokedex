@@ -1,11 +1,12 @@
 "use client";
 
+import { useComponentWillReceiveUpdate } from "foxact/use-component-will-receive-update";
+import { useIsomorphicLayoutEffect } from "foxact/use-isomorphic-layout-effect";
 import { usePathname } from "next/navigation";
-import React from "react";
 
 import { table } from "@/components";
+import { Link } from "@/components/client";
 import { FuzzySearch } from "@/components/fuzzy-search";
-import { Link } from "@/components/link";
 import { titleCase } from "@/misc/title-case";
 
 const fuse = FuzzySearch.createFuse();
@@ -13,20 +14,23 @@ const fuse = FuzzySearch.createFuse();
 export default ({ docs, ...props }) => {
   const pathname = usePathname();
 
-  React.useEffect(() => {
+  const updateFuseCollection = () => {
     fuse.setCollection(docs);
-  }, [docs]);
+  };
+
+  useComponentWillReceiveUpdate(updateFuseCollection, [docs]);
+  useIsomorphicLayoutEffect(updateFuseCollection, []);
 
   return (
     <FuzzySearch
       fuse={fuse}
       render={({ fuseResult }) =>
         table.pagination(fuseResult, {
-          renderRows: ({ context }) => [
+          renderCells: ({ context }) => (
             <Link href={`${pathname}/${context.item}`}>
               {titleCase(context.item)}
-            </Link>,
-          ],
+            </Link>
+          ),
         })
       }
       {...props}

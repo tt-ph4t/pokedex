@@ -1,3 +1,5 @@
+/** @import PokeAPI from "pokedex-promise-v2" */
+
 import {
   asyncNoop,
   isFunction,
@@ -11,15 +13,14 @@ import { isEmpty } from "es-toolkit/compat";
 
 import { list, table } from "@/components";
 import { Chart } from "@/components/chart";
-import { Link } from "@/components/link";
+import { Link } from "@/components/client";
+import { languageLink } from "@/components/language-link";
 import { tabs } from "@/components/tabs";
 import { NO_CONTENT } from "@/misc/contants";
 import { Pokedex } from "@/misc/pokedex-promise-v2";
 import { titleCase } from "@/misc/title-case";
 
 import inlineMath from "./inline-math";
-import internalTabs from "./internal-tabs";
-import languageLink from "./language-link";
 import {
   Checkbox,
   descriptionList,
@@ -27,8 +28,9 @@ import {
   unit,
   unnamedLink,
 } from "./misc";
+import tabMap from "./tab-map";
 
-const EvolutionChainTree = async ({ chain, url }) => {
+const evolutionChainTree = async ({ chain, url } = {}) => {
   const evolutionChainTree = (...chains) =>
     list(
       ...chains.map((chain) => (
@@ -71,7 +73,7 @@ export default mapValues(
     ability: {
       limit: Infinity,
       render: ({ context }) => {
-        /** @type Ability */
+        /** @type {PokeAPI.Ability} */
         const ability = context.data;
 
         return (
@@ -96,7 +98,7 @@ export default mapValues(
             ])}
             {tabs({
               pokemon: table.pagination(ability.pokemon, {
-                renderRows: ({ context }) => [
+                renderCells: ({ context }) => [
                   <Link href={`/pokemon/${context.pokemon.name}`}>
                     {titleCase(context.pokemon.name)}
                   </Link>,
@@ -105,17 +107,17 @@ export default mapValues(
                 ],
                 thead: [undefined, "hidden", "slot"],
               }),
-              ...internalTabs.effectChanges(ability.effect_changes),
-              ...internalTabs.effectEntries(ability.effect_entries),
-              ...internalTabs.flavorTextEntries(ability.flavor_text_entries),
-              ...internalTabs.names(ability.names),
+              ...tabMap.effectChanges(ability.effect_changes),
+              ...tabMap.effectEntries(ability.effect_entries),
+              ...tabMap.flavorTextEntries(ability.flavor_text_entries),
+              ...tabMap.names(ability.names),
             })}
           </>
         );
       },
     },
     berry: ({ context }) => {
-      /** @type Berry */
+      /** @type {PokeAPI.Berry} */
       const berry = context.data;
 
       return (
@@ -184,7 +186,7 @@ export default mapValues(
           ])}
           {tabs({
             flavors: table.pagination(berry.flavors, {
-              renderRows: ({ context }) => [
+              renderCells: ({ context }) => [
                 <Link href={`/berry-flavor/${context.flavor.name}`}>
                   {titleCase(context.flavor.name)}
                 </Link>,
@@ -197,22 +199,22 @@ export default mapValues(
       );
     },
     "berry-firmness": ({ context }) => {
-      /** @type BerryFirmness */
+      /** @type {PokeAPI.BerryFirmness} */
       const berryFirmness = context.data;
 
       return tabs({
         berries: table.pagination(berryFirmness.berries, {
-          renderRows: ({ context }) => [
+          renderCells: ({ context }) => (
             <Link href={`/berry/${context.name}`}>
               {titleCase(context.name)}
-            </Link>,
-          ],
+            </Link>
+          ),
         }),
-        ...internalTabs.names(berryFirmness.names),
+        ...tabMap.names(berryFirmness.names),
       });
     },
     "berry-flavor": ({ context }) => {
-      /** @type BerryFlavor */
+      /** @type {PokeAPI.BerryFlavor} */
       const berryFlavor = context.data;
 
       return (
@@ -230,7 +232,7 @@ export default mapValues(
           ])}
           {tabs({
             berries: table.pagination(berryFlavor.berries, {
-              renderRows: ({ context }) => [
+              renderCells: ({ context }) => [
                 <Link href={`/berry/${context.berry.name}`}>
                   {titleCase(context.berry.name)}
                 </Link>,
@@ -238,13 +240,13 @@ export default mapValues(
               ],
               thead: [undefined, "potency"],
             }),
-            ...internalTabs.names(berryFlavor.names),
+            ...tabMap.names(berryFlavor.names),
           })}
         </>
       );
     },
     characteristic: ({ context }) => {
-      /** @type Characteristic */
+      /** @type {PokeAPI.Characteristic} */
       const characteristic = context.data;
 
       return (
@@ -274,13 +276,13 @@ export default mapValues(
                 {list(...characteristic.possible_values)}
               </>
             ),
-            ...internalTabs.descriptions(characteristic.descriptions),
+            ...tabMap.descriptions(characteristic.descriptions),
           })}
         </>
       );
     },
     "contest-effect": ({ context }) => {
-      /** @type ContestEffect */
+      /** @type {PokeAPI.ContestEffect} */
       const contestEffect = context.data;
 
       return (
@@ -296,16 +298,14 @@ export default mapValues(
             ],
           ])}
           {tabs({
-            ...internalTabs.effectEntries(contestEffect.effect_entries),
-            ...internalTabs.flavorTextEntries(
-              contestEffect.flavor_text_entries,
-            ),
+            ...tabMap.effectEntries(contestEffect.effect_entries),
+            ...tabMap.flavorTextEntries(contestEffect.flavor_text_entries),
           })}
         </>
       );
     },
     "contest-type": ({ context }) => {
-      /** @type ContestType */
+      /** @type {PokeAPI.ContestType} */
       const contestType = context.data;
 
       return (
@@ -323,7 +323,7 @@ export default mapValues(
           ])}
           {tabs({
             names: table.pagination(contestType.names, {
-              renderRows: ({ context }) => [
+              renderCells: ({ context }) => [
                 context.name,
                 context.color,
                 languageLink(context.language),
@@ -335,22 +335,22 @@ export default mapValues(
       );
     },
     "egg-group": ({ context }) => {
-      /** @type EggGroup */
+      /** @type {PokeAPI.EggGroup} */
       const eggGroup = context.data;
 
       return tabs({
         pokemon_species: table.pagination(eggGroup.pokemon_species, {
-          renderRows: ({ context }) => [
+          renderCells: ({ context }) => (
             <Link href={`/pokemon-species/${context.name}`}>
               {titleCase(context.name)}
-            </Link>,
-          ],
+            </Link>
+          ),
         }),
-        ...internalTabs.names(eggGroup.names),
+        ...tabMap.names(eggGroup.names),
       });
     },
     "encounter-condition": ({ context }) => {
-      /** @type EncounterCondition */
+      /** @type {PokeAPI.EncounterCondition} */
       const encounterCondition = context.data;
 
       return tabs({
@@ -361,19 +361,19 @@ export default mapValues(
               "A list of possible values for this encounter condition.",
             )}
             {table.pagination(encounterCondition.values, {
-              renderRows: ({ context }) => [
+              renderCells: ({ context }) => (
                 <Link href={`/encounter-condition-value/${context.name}`}>
                   {titleCase(context.name)}
-                </Link>,
-              ],
+                </Link>
+              ),
             })}
           </>
         ),
-        ...internalTabs.names(encounterCondition.names),
+        ...tabMap.names(encounterCondition.names),
       });
     },
     "encounter-condition-value": ({ context }) => {
-      /** @type EncounterConditionValue */
+      /** @type {PokeAPI.EncounterConditionValue} */
       const encounterConditionValue = context.data;
 
       return (
@@ -391,18 +391,18 @@ export default mapValues(
               </Link>,
             ],
           ])}
-          {tabs(internalTabs.names(encounterConditionValue.names))}
+          {tabs(tabMap.names(encounterConditionValue.names))}
         </>
       );
     },
     "encounter-method": ({ context }) => {
-      /** @type EncounterMethod */
+      /** @type {PokeAPI.EncounterMethod} */
       const encounterMethod = context.data;
 
-      return tabs(internalTabs.names(encounterMethod.names));
+      return tabs(tabMap.names(encounterMethod.names));
     },
     "evolution-chain": ({ context }) => {
-      /** @type EvolutionChain */
+      /** @type {PokeAPI.EvolutionChain} */
       const evolutionChain = context.data;
 
       const babyTriggerItem = evolutionChain.baby_trigger_item?.name;
@@ -534,36 +534,41 @@ export default mapValues(
                 {titleCase(babyTriggerItem)}
               </Link>,
             ],
-            ["tree", <EvolutionChainTree chain={evolutionChain.chain} />],
+            [
+              "tree",
+              evolutionChainTree({
+                chain: evolutionChain.chain,
+              }),
+            ],
           ])}
           {chainTabs(evolutionChain.chain)}
         </>
       );
     },
     "evolution-trigger": ({ context }) => {
-      /** @type EvolutionTrigger */
+      /** @type {PokeAPI.EvolutionTrigger} */
       const evolutionTrigger = context.data;
 
       return tabs({
         pokemon_species: table.pagination(evolutionTrigger.pokemon_species, {
-          renderRows: ({ context }) => [
+          renderCells: ({ context }) => (
             <Link href={`/pokemon-species/${context.name}`}>
               {titleCase(context.name)}
-            </Link>,
-          ],
+            </Link>
+          ),
         }),
-        ...internalTabs.names(evolutionTrigger.names),
+        ...tabMap.names(evolutionTrigger.names),
       });
     },
     gender: ({ context }) => {
-      /** @type Gender */
+      /** @type {PokeAPI.Gender} */
       const gender = context.data;
 
       return tabs({
         pokemon_species_details: table.pagination(
           gender.pokemon_species_details,
           {
-            renderRows: ({ context }) => [
+            renderCells: ({ context }) => [
               <Link href={`/pokemon-species/${context.pokemon_species.name}`}>
                 {titleCase(context.pokemon_species.name)}
               </Link>,
@@ -582,18 +587,18 @@ export default mapValues(
               ),
             )}
             {table.pagination(gender.required_for_evolution, {
-              renderRows: ({ context }) => [
+              renderCells: ({ context }) => (
                 <Link href={`/pokemon-species/${context.name}`}>
                   {titleCase(context.name)}
-                </Link>,
-              ],
+                </Link>
+              ),
             })}
           </>
         ),
       });
     },
     generation: ({ context }) => {
-      /** @type Generation */
+      /** @type {PokeAPI.Generation} */
       const generation = context.data;
 
       return (
@@ -611,47 +616,47 @@ export default mapValues(
           ])}
           {tabs({
             abilities: table.pagination(generation.abilities, {
-              renderRows: ({ context }) => [
+              renderCells: ({ context }) => (
                 <Link href={`/ability/${context.name}`}>
                   {titleCase(context.name)}
-                </Link>,
-              ],
+                </Link>
+              ),
             }),
             moves: table.pagination(generation.moves, {
-              renderRows: ({ context }) => [
+              renderCells: ({ context }) => (
                 <Link href={`/move/${context.name}`}>
                   {titleCase(context.name)}
-                </Link>,
-              ],
+                </Link>
+              ),
             }),
             pokemon_species: table.pagination(generation.pokemon_species, {
-              renderRows: ({ context }) => [
+              renderCells: ({ context }) => (
                 <Link href={`/pokemon-species/${context.name}`}>
                   {titleCase(context.name)}
-                </Link>,
-              ],
+                </Link>
+              ),
             }),
             types: table.pagination(generation.types, {
-              renderRows: ({ context }) => [
+              renderCells: ({ context }) => (
                 <Link href={`/type/${context.name}`}>
                   {titleCase(context.name)}
-                </Link>,
-              ],
+                </Link>
+              ),
             }),
             version_groups: table.pagination(generation.version_groups, {
-              renderRows: ({ context }) => [
+              renderCells: ({ context }) => (
                 <Link href={`/version-group/${context.name}`}>
                   {titleCase(context.name)}
-                </Link>,
-              ],
+                </Link>
+              ),
             }),
-            ...internalTabs.names(generation.names),
+            ...tabMap.names(generation.names),
           })}
         </>
       );
     },
     "growth-rate": ({ context }) => {
-      /** @type GrowthRate */
+      /** @type {PokeAPI.GrowthRate} */
       const growthRate = context.data;
 
       return (
@@ -667,25 +672,25 @@ export default mapValues(
           ])}
           {tabs({
             levels: table.pagination(growthRate.levels, {
-              renderRows: ({ context }) => [context.level, context.experience],
+              renderCells: ({ context }) => [context.level, context.experience],
               showIndex: false,
               thead: [undefined, "experience"],
             }),
             pokemon_species: table.pagination(growthRate.pokemon_species, {
-              renderRows: ({ context }) => [
+              renderCells: ({ context }) => (
                 <Link href={`/pokemon-species/${context.name}`}>
                   {titleCase(context.name)}
-                </Link>,
-              ],
+                </Link>
+              ),
             }),
-            ...internalTabs.descriptions(growthRate.descriptions),
+            ...tabMap.descriptions(growthRate.descriptions),
           })}
         </>
       );
     },
     item: {
       getAvatarSrc: ({ context }) => {
-        /** @type Item */
+        /** @type {PokeAPI.Item} */
         const item = context.data;
 
         return item.sprites.default;
@@ -695,7 +700,7 @@ export default mapValues(
       },
       limit: Infinity,
       render: ({ context }) => {
-        /** @type Item */
+        /** @type {PokeAPI.Item} */
         const item = context.data;
 
         const flingEffect = item.fling_effect?.name;
@@ -736,19 +741,19 @@ export default mapValues(
             ])}
             {tabs({
               attributes: table.pagination(item.attributes, {
-                renderRows: ({ context }) => [
+                renderCells: ({ context }) => (
                   <Link href={`/item-attribute/${context.name}`}>
                     {titleCase(context.name)}
-                  </Link>,
-                ],
+                  </Link>
+                ),
               }),
               held_by_pokemon: table.pagination(item.held_by_pokemon, {
-                renderRows: ({ context }) => [
+                renderCells: ({ context }) => [
                   <Link href={`/pokemon/${context.pokemon.name}`}>
                     {titleCase(context.pokemon.name)}
                   </Link>,
                   table.pagination(context.version_details, {
-                    renderRows: ({ context }) => [
+                    renderCells: ({ context }) => [
                       <Link href={`/version/${context.version.name}`}>
                         {titleCase(context.version.name)}
                       </Link>,
@@ -759,34 +764,34 @@ export default mapValues(
                 ],
                 thead: [undefined, "version_details"],
               }),
-              ...internalTabs.effectEntries(item.effect_entries),
-              ...internalTabs.flavorTextEntries(item.flavor_text_entries),
-              ...internalTabs.gameIndices(item.game_indices),
-              ...internalTabs.machines(item.machines),
-              ...internalTabs.names(item.names),
+              ...tabMap.effectEntries(item.effect_entries),
+              ...tabMap.flavorTextEntries(item.flavor_text_entries),
+              ...tabMap.gameIndices(item.game_indices),
+              ...tabMap.machines(item.machines),
+              ...tabMap.names(item.names),
             })}
           </>
         );
       },
     },
     "item-attribute": ({ context }) => {
-      /** @type ItemAttribute */
+      /** @type {PokeAPI.ItemAttribute} */
       const itemAttribute = context.data;
 
       return tabs({
         items: table.pagination(itemAttribute.items, {
-          renderRows: ({ context }) => [
+          renderCells: ({ context }) => (
             <Link href={`/item/${context.name}`}>
               {titleCase(context.name)}
-            </Link>,
-          ],
+            </Link>
+          ),
         }),
-        ...internalTabs.descriptions(itemAttribute.descriptions),
-        ...internalTabs.names(itemAttribute.names),
+        ...tabMap.descriptions(itemAttribute.descriptions),
+        ...tabMap.names(itemAttribute.names),
       });
     },
     "item-category": ({ context }) => {
-      /** @type ItemCategory */
+      /** @type {PokeAPI.ItemCategory} */
       const itemCategory = context.data;
 
       return (
@@ -804,49 +809,49 @@ export default mapValues(
           ])}
           {tabs({
             items: table.pagination(itemCategory.items, {
-              renderRows: ({ context }) => [
+              renderCells: ({ context }) => (
                 <Link href={`/item/${context.name}`}>
                   {titleCase(context.name)}
-                </Link>,
-              ],
+                </Link>
+              ),
             }),
-            ...internalTabs.names(itemCategory.names),
+            ...tabMap.names(itemCategory.names),
           })}
         </>
       );
     },
     "item-fling-effect": ({ context }) => {
-      /** @type ItemFlingEffect */
+      /** @type {PokeAPI.ItemFlingEffect} */
       const itemFlingEffect = context.data;
 
       return tabs({
         items: table.pagination(itemFlingEffect.items, {
-          renderRows: ({ context }) => [
+          renderCells: ({ context }) => (
             <Link href={`/item/${context.name}`}>
               {titleCase(context.name)}
-            </Link>,
-          ],
+            </Link>
+          ),
         }),
-        ...internalTabs.effectEntries(itemFlingEffect.effect_entries),
+        ...tabMap.effectEntries(itemFlingEffect.effect_entries),
       });
     },
     "item-pocket": ({ context }) => {
-      /** @type ItemPocket */
+      /** @type {PokeAPI.ItemPocket} */
       const itemPocket = context.data;
 
       return tabs({
         categories: table.pagination(itemPocket.categories, {
-          renderRows: ({ context }) => [
+          renderCells: ({ context }) => (
             <Link href={`/item-category/${context.name}`}>
               {titleCase(context.name)}
-            </Link>,
-          ],
+            </Link>
+          ),
         }),
-        ...internalTabs.names(itemPocket.names),
+        ...tabMap.names(itemPocket.names),
       });
     },
     language: ({ context }) => {
-      /** @type Language */
+      /** @type {PokeAPI.Language} */
       const language = context.data;
 
       return (
@@ -871,12 +876,12 @@ export default mapValues(
               language.iso639,
             ],
           ])}
-          {tabs(internalTabs.names(language.names))}
+          {tabs(tabMap.names(language.names))}
         </>
       );
     },
     location: ({ context }) => {
-      /** @type PokedexLocation */
+      /** @type {PokeAPI.Location} */
       const location = context.data;
 
       const region = location.region?.name;
@@ -894,20 +899,20 @@ export default mapValues(
           ])}
           {tabs({
             areas: table.pagination(location.areas, {
-              renderRows: ({ context }) => [
+              renderCells: ({ context }) => (
                 <Link href={`/location-area/${context.name}`}>
                   {titleCase(context.name)}
-                </Link>,
-              ],
+                </Link>
+              ),
             }),
-            ...internalTabs.gameIndices(location.game_indices),
-            ...internalTabs.names(location.names),
+            ...tabMap.gameIndices(location.game_indices),
+            ...tabMap.names(location.names),
           })}
         </>
       );
     },
     "location-area": ({ context }) => {
-      /** @type LocationArea */
+      /** @type {PokeAPI.LocationArea} */
       const locationArea = context.data;
 
       return (
@@ -927,14 +932,14 @@ export default mapValues(
             encounter_method_rates: table.pagination(
               locationArea.encounter_method_rates,
               {
-                renderRows: ({ context }) => [
+                renderCells: ({ context }) => [
                   <Link
                     href={`/encounter-method/${context.encounter_method.name}`}
                   >
                     {titleCase(context.encounter_method.name)}
                   </Link>,
                   table.pagination(context.version_details, {
-                    renderRows: ({ context }) => [
+                    renderCells: ({ context }) => [
                       <Link href={`/version/${context.version.name}`}>
                         {titleCase(context.version.name)}
                       </Link>,
@@ -949,25 +954,25 @@ export default mapValues(
             pokemon_encounters: table.pagination(
               locationArea.pokemon_encounters,
               {
-                renderRows: ({ context }) => [
+                renderCells: ({ context }) => [
                   <Link href={`/pokemon/${context.pokemon.name}`}>
                     {titleCase(context.pokemon.name)}
                   </Link>,
-                  internalTabs.encounter.versionDetails(
+                  tabMap.encounter.versionDetails(
                     context.version_details,
-                    internalTabs.RAW_CONTENT,
+                    tabMap.RAW_CONTENT,
                   ),
                 ],
                 thead: [undefined, "version_details"],
               },
             ),
-            ...internalTabs.names(locationArea.names),
+            ...tabMap.names(locationArea.names),
           })}
         </>
       );
     },
     machine: ({ context }) => {
-      /** @type Machine */
+      /** @type {PokeAPI.Machine} */
       const machine = context.data;
 
       return table(undefined, [
@@ -1000,7 +1005,7 @@ export default mapValues(
     move: {
       limit: Infinity,
       render: ({ context }) => {
-        /** @type Move */
+        /** @type {PokeAPI.Move} */
         const move = context.data;
 
         const contestType = move.contest_type?.name;
@@ -1090,22 +1095,22 @@ export default mapValues(
                   tabs(
                     mapValues(value, (value) =>
                       table.pagination(value, {
-                        renderRows: ({ context }) => [
+                        renderCells: ({ context }) => (
                           <Link href={`/move/${context.name}`}>
                             {titleCase(context.name)}
-                          </Link>,
-                        ],
+                          </Link>
+                        ),
                       }),
                     ),
                   ),
                 ),
               ),
               learned_by_pokemon: table.pagination(move.learned_by_pokemon, {
-                renderRows: ({ context }) => [
+                renderCells: ({ context }) => (
                   <Link href={`/pokemon/${context.name}`}>
                     {titleCase(context.name)}
-                  </Link>,
-                ],
+                  </Link>
+                ),
               }),
               meta: table(
                 undefined,
@@ -1133,7 +1138,7 @@ export default mapValues(
                 }).map(([key, value]) => [titleCase(key), value]),
               ),
               stat_changes: table.pagination(move.stat_changes, {
-                renderRows: ({ context }) => [
+                renderCells: ({ context }) => [
                   <Link href={`/stat/${context.stat.name}`}>
                     {titleCase(context.stat.name)}
                   </Link>,
@@ -1141,102 +1146,102 @@ export default mapValues(
                 ],
                 thead: [undefined, "change"],
               }),
-              ...internalTabs.effectChanges(move.effect_changes),
-              ...internalTabs.effectEntries(move.effect_entries),
-              ...internalTabs.flavorTextEntries(move.flavor_text_entries),
-              ...internalTabs.machines(move.machines),
-              ...internalTabs.names(move.names),
+              ...tabMap.effectChanges(move.effect_changes),
+              ...tabMap.effectEntries(move.effect_entries),
+              ...tabMap.flavorTextEntries(move.flavor_text_entries),
+              ...tabMap.machines(move.machines),
+              ...tabMap.names(move.names),
             })}
           </>
         );
       },
     },
     "move-ailment": ({ context }) => {
-      /** @type MoveAilment */
+      /** @type {PokeAPI.MoveAilment} */
       const moveAilment = context.data;
 
       return tabs({
         moves: table.pagination(moveAilment.moves, {
-          renderRows: ({ context }) => [
+          renderCells: ({ context }) => (
             <Link href={`/move/${context.name}`}>
               {titleCase(context.name)}
-            </Link>,
-          ],
+            </Link>
+          ),
         }),
-        ...internalTabs.names(moveAilment.names),
+        ...tabMap.names(moveAilment.names),
       });
     },
     "move-battle-style": ({ context }) => {
-      /** @type MoveBattleStyle */
+      /** @type {PokeAPI.MoveBattleStyle} */
       const moveBattleStyle = context.data;
 
-      return tabs(internalTabs.names(moveBattleStyle.names));
+      return tabs(tabMap.names(moveBattleStyle.names));
     },
     "move-category": ({ context }) => {
-      /** @type MoveCategory */
+      /** @type {PokeAPI.MoveCategory} */
       const moveCategory = context.data;
 
       return tabs({
         moves: table.pagination(moveCategory.moves, {
-          renderRows: ({ context }) => [
+          renderCells: ({ context }) => (
             <Link href={`/move/${context.name}`}>
               {titleCase(context.name)}
-            </Link>,
-          ],
+            </Link>
+          ),
         }),
-        ...internalTabs.descriptions(moveCategory.descriptions),
+        ...tabMap.descriptions(moveCategory.descriptions),
       });
     },
     "move-damage-class": ({ context }) => {
-      /** @type MoveDamageClass */
+      /** @type {PokeAPI.MoveDamageClass} */
       const moveDamageClass = context.data;
 
       return tabs({
         moves: table.pagination(moveDamageClass.moves, {
-          renderRows: ({ context }) => [
+          renderCells: ({ context }) => (
             <Link href={`/move/${context.name}`}>
               {titleCase(context.name)}
-            </Link>,
-          ],
+            </Link>
+          ),
         }),
-        ...internalTabs.descriptions(moveDamageClass.descriptions),
-        ...internalTabs.names(moveDamageClass.names),
+        ...tabMap.descriptions(moveDamageClass.descriptions),
+        ...tabMap.names(moveDamageClass.names),
       });
     },
     "move-learn-method": ({ context }) => {
-      /** @type MoveLearnMethod */
+      /** @type {PokeAPI.MoveLearnMethod} */
       const moveLearnMethod = context.data;
 
       return tabs({
         version_groups: table.pagination(moveLearnMethod.version_groups, {
-          renderRows: ({ context }) => [
+          renderCells: ({ context }) => (
             <Link href={`/version-group/${context.name}`}>
               {titleCase(context.name)}
-            </Link>,
-          ],
+            </Link>
+          ),
         }),
-        ...internalTabs.descriptions(moveLearnMethod.descriptions),
-        ...internalTabs.names(moveLearnMethod.names),
+        ...tabMap.descriptions(moveLearnMethod.descriptions),
+        ...tabMap.names(moveLearnMethod.names),
       });
     },
     "move-target": ({ context }) => {
-      /** @type MoveTarget */
+      /** @type {PokeAPI.MoveTarget} */
       const moveTarget = context.data;
 
       return tabs({
         moves: table.pagination(moveTarget.moves, {
-          renderRows: ({ context }) => [
+          renderCells: ({ context }) => (
             <Link href={`/move/${context.name}`}>
               {titleCase(context.name)}
-            </Link>,
-          ],
+            </Link>
+          ),
         }),
-        ...internalTabs.descriptions(moveTarget.descriptions),
-        ...internalTabs.names(moveTarget.names),
+        ...tabMap.descriptions(moveTarget.descriptions),
+        ...tabMap.names(moveTarget.names),
       });
     },
     nature: ({ context }) => {
-      /** @type Nature */
+      /** @type {PokeAPI.Nature} */
       const nature = context.data;
 
       const decreasedStat = nature.decreased_stat?.name;
@@ -1288,7 +1293,7 @@ export default mapValues(
             move_battle_style_preferences: table.pagination(
               nature.move_battle_style_preferences,
               {
-                renderRows: ({ context }) => [
+                renderCells: ({ context }) => [
                   <Link
                     href={`/move-battle-style/${context.move_battle_style.name}`}
                   >
@@ -1303,7 +1308,7 @@ export default mapValues(
             pokeathlon_stat_changes: table.pagination(
               nature.pokeathlon_stat_changes,
               {
-                renderRows: ({ context }) => [
+                renderCells: ({ context }) => [
                   <Link
                     href={`/pokeathlon-stat/${context.pokeathlon_stat.name}`}
                   >
@@ -1314,18 +1319,18 @@ export default mapValues(
                 thead: [undefined, "max_change"],
               },
             ),
-            ...internalTabs.names(nature.names),
+            ...tabMap.names(nature.names),
           })}
         </>
       );
     },
     "pal-park-area": ({ context }) => {
-      /** @type PalParkArea */
+      /** @type {PokeAPI.PalParkArea} */
       const palParkArea = context.data;
 
       return tabs({
         pokemon_encounters: table.pagination(palParkArea.pokemon_encounters, {
-          renderRows: ({ context }) => [
+          renderCells: ({ context }) => [
             <Link href={`/pokemon-species/${context.pokemon_species.name}`}>
               {titleCase(context.pokemon_species.name)}
             </Link>,
@@ -1334,18 +1339,18 @@ export default mapValues(
           ],
           thead: ["pokemon_species", "base_score", "rate"],
         }),
-        ...internalTabs.names(palParkArea.names),
+        ...tabMap.names(palParkArea.names),
       });
     },
     "pokeathlon-stat": ({ context }) => {
-      /** @type PokeathlonStat */
+      /** @type {PokeAPI.PokeathlonStat} */
       const pokeathlonStat = context.data;
 
       return tabs({
         affecting_natures: tabs(
           mapValues(pokeathlonStat.affecting_natures, (value) =>
             table.pagination(value, {
-              renderRows: ({ context }) => [
+              renderCells: ({ context }) => [
                 <Link href={`/nature/${context.nature.name}`}>
                   {titleCase(context.nature.name)}
                 </Link>,
@@ -1355,11 +1360,11 @@ export default mapValues(
             }),
           ),
         ),
-        ...internalTabs.names(pokeathlonStat.names),
+        ...tabMap.names(pokeathlonStat.names),
       });
     },
     pokedex: ({ context }) => {
-      /** @type Pokedex */
+      /** @type {PokeAPI.Pokedex} */
       const pokedex = context.data;
 
       const region = pokedex.region?.name;
@@ -1384,7 +1389,7 @@ export default mapValues(
           ])}
           {tabs({
             pokemon_entries: table.pagination(pokedex.pokemon_entries, {
-              renderRows: ({ context }) => [
+              renderCells: ({ context }) => [
                 <Link href={`/pokemon-species/${context.pokemon_species.name}`}>
                   {titleCase(context.pokemon_species.name)}
                 </Link>,
@@ -1393,21 +1398,21 @@ export default mapValues(
               thead: ["pokemon_species", "entry_number"],
             }),
             version_groups: table.pagination(pokedex.version_groups, {
-              renderRows: ({ context }) => [
+              renderCells: ({ context }) => (
                 <Link href={`/version-group/${context.name}`}>
                   {titleCase(context.name)}
-                </Link>,
-              ],
+                </Link>
+              ),
             }),
-            ...internalTabs.descriptions(pokedex.descriptions),
-            ...internalTabs.names(pokedex.names),
+            ...tabMap.descriptions(pokedex.descriptions),
+            ...tabMap.names(pokedex.names),
           })}
         </>
       );
     },
     pokemon: {
       getAvatarSrc: ({ context }) => {
-        /** @type Pokemon */
+        /** @type {PokeAPI.Pokemon} */
         const pokemon = context.data;
 
         return (
@@ -1422,7 +1427,7 @@ export default mapValues(
         );
       },
       getFavicon: ({ context }) => {
-        /** @type Pokemon */
+        /** @type {PokeAPI.Pokemon} */
         const pokemon = context.data;
 
         return (
@@ -1432,7 +1437,7 @@ export default mapValues(
       },
       limit: Infinity,
       render: async ({ context }) => {
-        /** @type Pokemon */
+        /** @type {PokeAPI.Pokemon} */
         const pokemon = context.data;
 
         return (
@@ -1463,7 +1468,7 @@ export default mapValues(
             ])}
             {tabs({
               abilities: table.pagination(pokemon.abilities, {
-                renderRows: ({ context }) => [
+                renderCells: ({ context }) => [
                   <Link href={`/ability/${context.ability.name}`}>
                     {titleCase(context.ability.name)}
                   </Link>,
@@ -1473,25 +1478,25 @@ export default mapValues(
                 thead: [undefined, "hidden", "slot"],
               }),
               cries: table.pagination(Object.entries(pokemon.cries), {
-                renderRows: ({ context }) => [
+                renderCells: ({ context }) => [
                   titleCase(context[0]),
                   <audio controls src={context[1]} />,
                 ],
               }),
               forms: table.pagination(pokemon.forms, {
-                renderRows: ({ context }) => [
+                renderCells: ({ context }) => (
                   <Link href={`/pokemon-form/${context.name}`}>
                     {titleCase(context.name)}
-                  </Link>,
-                ],
+                  </Link>
+                ),
               }),
               held_items: table.pagination(pokemon.held_items, {
-                renderRows: ({ context }) => [
+                renderCells: ({ context }) => [
                   <Link href={`/item/${context.item.name}`}>
                     {titleCase(context.item.name)}
                   </Link>,
                   table.pagination(context.version_details, {
-                    renderRows: ({ context }) => [
+                    renderCells: ({ context }) => [
                       <Link href={`/version/${context.version.name}`}>
                         {titleCase(context.version.name)}
                       </Link>,
@@ -1509,25 +1514,25 @@ export default mapValues(
                   )
                 ).data,
                 {
-                  renderRows: ({ context }) => [
+                  renderCells: ({ context }) => [
                     <Link href={`/location-area/${context.location_area.name}`}>
                       {titleCase(context.location_area.name)}
                     </Link>,
-                    internalTabs.encounter.versionDetails(
+                    tabMap.encounter.versionDetails(
                       context.version_details,
-                      internalTabs.RAW_CONTENT,
+                      tabMap.RAW_CONTENT,
                     ),
                   ],
                   thead: [undefined, "version_details"],
                 },
               ),
               moves: table.pagination(pokemon.moves, {
-                renderRows: ({ context }) => [
+                renderCells: ({ context }) => [
                   <Link href={`/move/${context.move.name}`}>
                     {titleCase(context.move.name)}
                   </Link>,
                   table.pagination(context.version_group_details, {
-                    renderRows: ({ context }) => [
+                    renderCells: ({ context }) => [
                       context.order,
                       context.level_learned_at,
                       <Link
@@ -1586,45 +1591,45 @@ export default mapValues(
                 // eslint-disable-next-line perfectionist/sort-objects
                 chart: (
                   <Chart
-                    series={[
-                      {
-                        data: pokemon.stats.map((statElement) => ({
-                          name: statElement.stat.name,
-                          y: statElement.base_stat,
-                        })),
-                        options: { name: "Base Stat" },
-                        type: "pie",
+                    series={{
+                      data: pokemon.stats.map((statElement) => ({
+                        name: statElement.stat.name,
+                        y: statElement.base_stat,
+                      })),
+                      options: {
+                        name: "Base Stat",
                       },
-                    ]}
+                      type: "pie",
+                    }}
                   />
                 ),
               }),
-              ...internalTabs.gameIndices(pokemon.game_indices),
-              ...internalTabs.sprites(pokemon.sprites),
-              ...internalTabs.types(pokemon.types),
+              ...tabMap.gameIndices(pokemon.game_indices),
+              ...tabMap.sprites(pokemon.sprites),
+              ...tabMap.types(pokemon.types),
             })}
           </>
         );
       },
     },
     "pokemon-color": ({ context }) => {
-      /** @type PokemonColor */
+      /** @type {PokeAPI.PokemonColor} */
       const pokemonColor = context.data;
 
       return tabs({
         pokemon_species: table.pagination(pokemonColor.pokemon_species, {
-          renderRows: ({ context }) => [
+          renderCells: ({ context }) => (
             <Link href={`/pokemon-species/${context.name}`}>
               {titleCase(context.name)}
-            </Link>,
-          ],
+            </Link>
+          ),
         }),
-        ...internalTabs.names(pokemonColor.names),
+        ...tabMap.names(pokemonColor.names),
       });
     },
     "pokemon-form": {
       getAvatarSrc: ({ context }) => {
-        /** @type PokemonForm */
+        /** @type {PokeAPI.PokemonForm} */
         const pokemonForm = context.data;
 
         return pokemonForm.sprites.front_default;
@@ -1633,7 +1638,7 @@ export default mapValues(
         return this.getAvatarSrc;
       },
       render: ({ context }) => {
-        /** @type PokemonForm */
+        /** @type {PokeAPI.PokemonForm} */
         const pokemonForm = context.data;
 
         return (
@@ -1688,56 +1693,56 @@ export default mapValues(
               ],
             ])}
             {tabs({
-              ...internalTabs.names(pokemonForm.form_names, "form_names"),
-              ...internalTabs.names(pokemonForm.names),
-              ...internalTabs.sprites(pokemonForm.sprites),
-              ...internalTabs.types(pokemonForm.types),
+              ...tabMap.names(pokemonForm.form_names, "form_names"),
+              ...tabMap.names(pokemonForm.names),
+              ...tabMap.sprites(pokemonForm.sprites),
+              ...tabMap.types(pokemonForm.types),
             })}
           </>
         );
       },
     },
     "pokemon-habitat": ({ context }) => {
-      /** @type PokemonHabitat */
+      /** @type {PokeAPI.PokemonHabitat} */
       const pokemonHabitat = context.data;
 
       return tabs({
         pokemon_species: table.pagination(pokemonHabitat.pokemon_species, {
-          renderRows: ({ context }) => [
+          renderCells: ({ context }) => (
             <Link href={`/pokemon-species/${context.name}`}>
               {titleCase(context.name)}
-            </Link>,
-          ],
+            </Link>
+          ),
         }),
-        ...internalTabs.names(pokemonHabitat.names),
+        ...tabMap.names(pokemonHabitat.names),
       });
     },
     "pokemon-shape": ({ context }) => {
-      /** @type PokemonShape */
+      /** @type {PokeAPI.PokemonShape} */
       const pokemonShape = context.data;
 
       return tabs({
         awesome_names: table.pagination(pokemonShape.awesome_names, {
-          renderRows: ({ context }) => [
+          renderCells: ({ context }) => [
             context.awesome_name,
             languageLink(context.language),
           ],
           thead: [undefined, "language"],
         }),
         pokemon_species: table.pagination(pokemonShape.pokemon_species, {
-          renderRows: ({ context }) => [
+          renderCells: ({ context }) => (
             <Link href={`/pokemon-species/${context.name}`}>
               {titleCase(context.name)}
-            </Link>,
-          ],
+            </Link>
+          ),
         }),
-        ...internalTabs.names(pokemonShape.names),
+        ...tabMap.names(pokemonShape.names),
       });
     },
     "pokemon-species": {
       limit: Infinity,
       render: ({ context }) => {
-        /** @type PokemonSpecies */
+        /** @type {PokeAPI.PokemonSpecies} */
         const pokemonSpecies = context.data;
 
         const previousPokemonSpeciesName =
@@ -1778,7 +1783,9 @@ export default mapValues(
                   )}
                   {unnamedLink(pokemonSpecies.evolution_chain.url)}
                 </div>,
-                <EvolutionChainTree url={pokemonSpecies.evolution_chain.url} />,
+                evolutionChainTree({
+                  url: pokemonSpecies.evolution_chain.url,
+                }),
               ],
               [
                 highlighter("Whether or not this is a baby Pokémon.", "baby"),
@@ -1873,14 +1880,14 @@ export default mapValues(
             ])}
             {tabs({
               egg_groups: table.pagination(pokemonSpecies.egg_groups, {
-                renderRows: ({ context }) => [
+                renderCells: ({ context }) => (
                   <Link href={`/egg-group/${context.name}`}>
                     {titleCase(context.name)}
-                  </Link>,
-                ],
+                  </Link>
+                ),
               }),
               genera: table.pagination(pokemonSpecies.genera, {
-                renderRows: ({ context }) => [
+                renderCells: ({ context }) => [
                   context.genus,
                   languageLink(context.language),
                 ],
@@ -1889,7 +1896,7 @@ export default mapValues(
               pal_park_encounters: table.pagination(
                 pokemonSpecies.pal_park_encounters,
                 {
-                  renderRows: ({ context }) => [
+                  renderCells: ({ context }) => [
                     <Link href={`/pal-park-area/${context.area.name}`}>
                       {titleCase(context.area.name)}
                     </Link>,
@@ -1902,7 +1909,7 @@ export default mapValues(
               pokedex_numbers: table.pagination(
                 pokemonSpecies.pokedex_numbers,
                 {
-                  renderRows: ({ context }) => [
+                  renderCells: ({ context }) => [
                     <Link href={`/pokedex/${context.pokedex.name}`}>
                       {titleCase(context.pokedex.name)}
                     </Link>,
@@ -1912,7 +1919,7 @@ export default mapValues(
                 },
               ),
               varieties: table.pagination(pokemonSpecies.varieties, {
-                renderRows: ({ context }) => [
+                renderCells: ({ context }) => [
                   <Link href={`/pokemon/${context.pokemon.name}`}>
                     {titleCase(context.pokemon.name)}
                   </Link>,
@@ -1920,21 +1927,19 @@ export default mapValues(
                 ],
                 thead: [undefined, "default"],
               }),
-              ...internalTabs.descriptions(
+              ...tabMap.descriptions(
                 pokemonSpecies.form_descriptions,
                 "form_descriptions",
               ),
-              ...internalTabs.flavorTextEntries(
-                pokemonSpecies.flavor_text_entries,
-              ),
-              ...internalTabs.names(pokemonSpecies.names),
+              ...tabMap.flavorTextEntries(pokemonSpecies.flavor_text_entries),
+              ...tabMap.names(pokemonSpecies.names),
             })}
           </>
         );
       },
     },
     region: ({ context }) => {
-      /** @type Region */
+      /** @type {PokeAPI.Region} */
       const region = context.data;
 
       const mainGeneration = region.main_generation?.name;
@@ -1954,33 +1959,33 @@ export default mapValues(
           ])}
           {tabs({
             locations: table.pagination(region.locations, {
-              renderRows: ({ context }) => [
+              renderCells: ({ context }) => (
                 <Link href={`/location/${context.name}`}>
                   {titleCase(context.name)}
-                </Link>,
-              ],
+                </Link>
+              ),
             }),
             pokedexes: table.pagination(region.pokedexes, {
-              renderRows: ({ context }) => [
+              renderCells: ({ context }) => (
                 <Link href={`/pokedex/${context.name}`}>
                   {titleCase(context.name)}
-                </Link>,
-              ],
+                </Link>
+              ),
             }),
             version_groups: table.pagination(region.version_groups, {
-              renderRows: ({ context }) => [
+              renderCells: ({ context }) => (
                 <Link href={`/version-group/${context.name}`}>
                   {titleCase(context.name)}
-                </Link>,
-              ],
+                </Link>
+              ),
             }),
-            ...internalTabs.names(region.names),
+            ...tabMap.names(region.names),
           })}
         </>
       );
     },
     stat: ({ context }) => {
-      /** @type Stat */
+      /** @type {PokeAPI.Stat} */
       const stat = context.data;
 
       const moveDamageClass = stat.move_damage_class?.name;
@@ -2001,16 +2006,16 @@ export default mapValues(
           ])}
           {tabs({
             affecting_items: table.pagination(stat.affecting_items, {
-              renderRows: ({ context }) => [
+              renderCells: ({ context }) => (
                 <Link href={`/item/${context.name}`}>
                   {titleCase(context.name)}
-                </Link>,
-              ],
+                </Link>
+              ),
             }),
             affecting_moves: tabs(
               mapValues(stat.affecting_moves, (value) =>
                 table.pagination(value, {
-                  renderRows: ({ context }) => [
+                  renderCells: ({ context }) => [
                     <Link href={`/move/${context.move.name}`}>
                       {titleCase(context.move.name)}
                     </Link>,
@@ -2023,24 +2028,24 @@ export default mapValues(
             affecting_natures: tabs(
               mapValues(stat.affecting_natures, (value) =>
                 table.pagination(value, {
-                  renderRows: ({ context }) => [
+                  renderCells: ({ context }) => (
                     <Link href={`/nature/${context.name}`}>
                       {titleCase(context.name)}
-                    </Link>,
-                  ],
+                    </Link>
+                  ),
                 }),
               ),
             ),
             characteristics: table.pagination(stat.characteristics, {
-              renderRows: ({ context }) => [unnamedLink(context.url)],
+              renderCells: ({ context }) => unnamedLink(context.url),
             }),
-            ...internalTabs.names(stat.names),
+            ...tabMap.names(stat.names),
           })}
         </>
       );
     },
     "super-contest-effect": ({ context }) => {
-      /** @type SuperContestEffect */
+      /** @type {PokeAPI.SuperContestEffect} */
       const superContestEffect = context.data;
 
       return (
@@ -2056,28 +2061,26 @@ export default mapValues(
           ])}
           {tabs({
             moves: table.pagination(superContestEffect.moves, {
-              renderRows: ({ context }) => [
+              renderCells: ({ context }) => (
                 <Link href={`/move/${context.name}`}>
                   {titleCase(context.name)}
-                </Link>,
-              ],
+                </Link>
+              ),
             }),
-            ...internalTabs.flavorTextEntries(
-              superContestEffect.flavor_text_entries,
-            ),
+            ...tabMap.flavorTextEntries(superContestEffect.flavor_text_entries),
           })}
         </>
       );
     },
     type: {
       getAvatarSrc: ({ context }) => {
-        /** @type Type */
+        /** @type {PokeAPI.Type} */
         const type = context.data;
 
         return type.sprites["generation-ix"]["scarlet-violet"].name_icon;
       },
       render: ({ context }) => {
-        /** @type Type */
+        /** @type {PokeAPI.Type} */
         const type = context.data;
 
         const moveDamageClass = type.move_damage_class?.name;
@@ -2105,23 +2108,23 @@ export default mapValues(
               damage_relations: tabs(
                 mapValues(type.damage_relations, (value) =>
                   table.pagination(value, {
-                    renderRows: ({ context }) => [
+                    renderCells: ({ context }) => (
                       <Link href={`/type/${context.name}`}>
                         {titleCase(context.name)}
-                      </Link>,
-                    ],
+                      </Link>
+                    ),
                   }),
                 ),
               ),
               moves: table.pagination(type.moves, {
-                renderRows: ({ context }) => [
+                renderCells: ({ context }) => (
                   <Link href={`/move/${context.name}`}>
                     {titleCase(context.name)}
-                  </Link>,
-                ],
+                  </Link>
+                ),
               }),
               pokemon: table.pagination(type.pokemon, {
-                renderRows: ({ context }) => [
+                renderCells: ({ context }) => [
                   <Link href={`/pokemon/${context.pokemon.name}`}>
                     {titleCase(context.pokemon.name)}
                   </Link>,
@@ -2129,16 +2132,16 @@ export default mapValues(
                 ],
                 thead: [undefined, "slot"],
               }),
-              ...internalTabs.gameIndices(type.game_indices),
-              ...internalTabs.names(type.names),
-              ...internalTabs.sprites(type.sprites),
+              ...tabMap.gameIndices(type.game_indices),
+              ...tabMap.names(type.names),
+              ...tabMap.sprites(type.sprites),
             })}
           </>
         );
       },
     },
     version: ({ context }) => {
-      /** @type Version */
+      /** @type {PokeAPI.Version} */
       const version = context.data;
 
       return (
@@ -2154,12 +2157,12 @@ export default mapValues(
               </Link>,
             ],
           ])}
-          {tabs(internalTabs.names(version.names))}
+          {tabs(tabMap.names(version.names))}
         </>
       );
     },
     "version-group": ({ context }) => {
-      /** @type VersionGroup */
+      /** @type {PokeAPI.VersionGroup} */
       const versionGroup = context.data;
 
       return (
@@ -2179,33 +2182,33 @@ export default mapValues(
             move_learn_methods: table.pagination(
               versionGroup.move_learn_methods,
               {
-                renderRows: ({ context }) => [
+                renderCells: ({ context }) => (
                   <Link href={`/move-learn-method/${context.name}`}>
                     {titleCase(context.name)}
-                  </Link>,
-                ],
+                  </Link>
+                ),
               },
             ),
             pokedexes: table.pagination(versionGroup.pokedexes, {
-              renderRows: ({ context }) => [
+              renderCells: ({ context }) => (
                 <Link href={`/pokedex/${context.name}`}>
                   {titleCase(context.name)}
-                </Link>,
-              ],
+                </Link>
+              ),
             }),
             regions: table.pagination(versionGroup.regions, {
-              renderRows: ({ context }) => [
+              renderCells: ({ context }) => (
                 <Link href={`/region/${context.name}`}>
                   {titleCase(context.name)}
-                </Link>,
-              ],
+                </Link>
+              ),
             }),
             versions: table.pagination(versionGroup.versions, {
-              renderRows: ({ context }) => [
+              renderCells: ({ context }) => (
                 <Link href={`/version/${context.name}`}>
                   {titleCase(context.name)}
-                </Link>,
-              ],
+                </Link>
+              ),
             }),
           })}
         </>
@@ -2213,7 +2216,10 @@ export default mapValues(
     },
   },
   (value) => {
-    if (isFunction(value)) value = { render: value };
+    if (isFunction(value))
+      value = {
+        render: value,
+      };
 
     return {
       ...(value = {

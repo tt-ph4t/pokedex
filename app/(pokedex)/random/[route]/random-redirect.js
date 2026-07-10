@@ -1,11 +1,10 @@
 "use client";
 
 import { sample } from "es-toolkit";
+import { useIsomorphicLayoutEffect } from "foxact/use-isomorphic-layout-effect";
 import { Callout } from "fumadocs-ui/components/callout";
 import { useRouter } from "next/navigation";
 import React from "react";
-
-import { RouterActions } from "@/components/client";
 
 export default ({ hrefs }) => {
   const router = useRouter();
@@ -15,12 +14,11 @@ export default ({ hrefs }) => {
     router.push(href);
   });
 
-  React.useEffect(effectEvent);
+  useIsomorphicLayoutEffect(effectEvent, []);
 
   return (
     <Callout title="Redirecting to" type="warn">
       {href}
-      <RouterActions />
     </Callout>
   );
 };

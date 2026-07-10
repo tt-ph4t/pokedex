@@ -1,8 +1,8 @@
 import { table } from "@/components";
-import { Link } from "@/components/link";
+import { Link } from "@/components/client";
+import { languageLink } from "@/components/language-link";
 import { titleCase } from "@/misc/title-case";
 
-import languageLink from "./language-link";
 import { Avatar, unnamedLink } from "./misc";
 
 const RAW_CONTENT = Symbol();
@@ -10,15 +10,21 @@ const RAW_CONTENT = Symbol();
 const tab =
   (name, render) =>
   (context, as = name) => {
-    const content = render({ context });
+    const tab = render({
+      context,
+    });
 
-    return as === RAW_CONTENT ? content : { [as]: content };
+    return as === RAW_CONTENT
+      ? tab
+      : {
+          [as]: tab,
+        };
   };
 
 export default {
   descriptions: tab("descriptions", ({ context }) =>
     table.pagination(context, {
-      renderRows: ({ context }) => [
+      renderCells: ({ context }) => [
         context.description,
         languageLink(context.language),
       ],
@@ -28,7 +34,7 @@ export default {
   get effectChanges() {
     return tab("effect_changes", ({ context }) =>
       table.pagination(context, {
-        renderRows: ({ context }) => [
+        renderCells: ({ context }) => [
           <Link href={`/version-group/${context.version_group.name}`}>
             {titleCase(context.version_group.name)}
           </Link>,
@@ -40,7 +46,7 @@ export default {
   },
   effectEntries: tab("effect_entries", ({ context }) =>
     table.pagination(context, {
-      renderRows: ({ context }) => [
+      renderCells: ({ context }) => [
         context.short_effect ? (
           <span title={context.effect}>{context.short_effect}</span>
         ) : (
@@ -54,13 +60,13 @@ export default {
   encounter: {
     versionDetails: tab("version_details", ({ context }) =>
       table.pagination(context, {
-        renderRows: ({ context }) => [
+        renderCells: ({ context }) => [
           <Link href={`/version/${context.version.name}`}>
             {titleCase(context.version.name)}
           </Link>,
           context.max_chance,
           table.pagination(context.encounter_details, {
-            renderRows: ({ context }) => [
+            renderCells: ({ context }) => [
               <Link href={`/encounter-method/${context.method.name}`}>
                 {titleCase(context.method.name)}
               </Link>,
@@ -68,11 +74,11 @@ export default {
               context.min_level,
               context.max_level,
               table.pagination(context.condition_values, {
-                renderRows: ({ context }) => [
+                renderCells: ({ context }) => (
                   <Link href={`/encounter-condition-value/${context.name}`}>
                     {titleCase(context.name)}
-                  </Link>,
-                ],
+                  </Link>
+                ),
               }),
             ],
             thead: [
@@ -90,7 +96,7 @@ export default {
   },
   flavorTextEntries: tab("flavor_text_entries", ({ context }) =>
     table.pagination(context, {
-      renderRows: ({ context }) => {
+      renderCells: ({ context }) => {
         const version = context.version?.name;
         const versionGroup = context.version_group?.name;
 
@@ -108,7 +114,7 @@ export default {
   ),
   gameIndices: tab("game_indices", ({ context }) =>
     table.pagination(context, {
-      renderRows: ({ context }) => {
+      renderCells: ({ context }) => {
         const generation = context.generation?.name;
         const version = context.version?.name;
 
@@ -126,7 +132,7 @@ export default {
   ),
   machines: tab("machines", ({ context }) =>
     table.pagination(context, {
-      renderRows: ({ context }) => [
+      renderCells: ({ context }) => [
         unnamedLink(context.machine.url),
         <Link href={`/version-group/${context.version_group.name}`}>
           {titleCase(context.version_group.name)}
@@ -137,7 +143,7 @@ export default {
   ),
   names: tab("names", ({ context }) =>
     table.pagination(context, {
-      renderRows: ({ context }) => [
+      renderCells: ({ context }) => [
         context.name,
         languageLink(context.language),
       ],
@@ -146,14 +152,14 @@ export default {
   ),
   RAW_CONTENT,
   sprites: tab("sprites", ({ context }) =>
-    table.pagination.fromObject(context, {
+    table.pagination.object(context, {
       renderKey: titleCase,
       renderValue: (src) => <Avatar src={src} />,
     }),
   ),
   types: tab("types", ({ context }) =>
     table.pagination(context, {
-      renderRows: ({ context }) => [
+      renderCells: ({ context }) => [
         <Link href={`/type/${context.type.name}`}>
           {titleCase(context.type.name)}
         </Link>,

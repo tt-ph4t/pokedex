@@ -1,10 +1,10 @@
 import convert from "convert";
 import { compact } from "es-toolkit";
+import { Slot } from "radix-ui";
 import React from "react";
 import Highlighter from "react-highlight-words";
 
-import { LazyImage } from "@/components/client";
-import { Link } from "@/components/link";
+import { LazyImage, Link } from "@/components/client";
 
 export const highlighter = (textToHighlight, ...searchWords) => (
   <Highlighter
@@ -30,14 +30,14 @@ export const unnamedLink = (href) => {
   }
 };
 
-export const Avatar = ({ style, ...props }) => (
-  <LazyImage
+export const Avatar = (props) => (
+  <Slot.Root
     style={{
       maxWidth: "calc(var(--text-base) * 6)",
-      ...style,
     }}
-    {...props}
-  />
+  >
+    <LazyImage {...props} />
+  </Slot.Root>
 );
 
 export const unit = (quantity, from, to = "best", toFixed = 1) => (
@@ -65,7 +65,7 @@ export const descriptionList = (term, ...descriptions) => (
   </dl>
 );
 
-export const Checkbox = ({ checked, children, readOnly = true }) => {
+export const Checkbox = ({ checked, children, ...props }) => {
   const id = React.useId();
 
   return (
@@ -75,13 +75,9 @@ export const Checkbox = ({ checked, children, readOnly = true }) => {
         gap: "var(--spacing)",
       }}
     >
-      <input
-        checked={checked}
-        disabled={!checked}
-        id={id}
-        readOnly={readOnly}
-        type="checkbox"
-      />
+      <Slot.Root readOnly type="checkbox">
+        <input checked={checked} disabled={!checked} id={id} {...props} />
+      </Slot.Root>
       <label htmlFor={id}>{children}</label>
     </div>
   );

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
-import { feed } from "@/misc/pokedex-promise-v2/feed";
+import { Pokedex } from "@/misc/pokedex-promise-v2";
 
-export const GET = () => NextResponse.json(JSON.parse(feed.json1()));
+const json1 = JSON.parse(Pokedex.feed.json1());
+
+export const GET = () => NextResponse.json(json1);

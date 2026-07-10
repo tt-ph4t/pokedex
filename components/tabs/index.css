@@ -4,7 +4,7 @@
 
   [role="tab"] {
     border: unset;
-    border-radius: 100dvw;
+    border-radius: var(--radius-full);
     padding: var(--spacing) calc(var(--spacing) * 2);
     font-weight: normal;
     user-select: none;

@@ -1,53 +1,54 @@
 "use client";
 
-import { useIntersectionObserver } from "@uidotdev/usehooks";
+import { useIntersection } from "foxact/use-intersection";
+import { useIsClient } from "foxact/use-is-client";
+import { Slot } from "radix-ui";
 import React from "react";
 
-import { useIsClient } from "@/hooks";
+import { useProgressWhen } from "@/hooks";
 
 const ClientOnly =
   // https://chakra-ui.com/docs/components/client-only
   ({ children, fallback }) => {
     const isClient = useIsClient();
 
+    useProgressWhen(!isClient);
+
     return <React.Activity>{isClient ? children : fallback}</React.Activity>;
   };
 
-const InternalInView = ({
+const Intersection = ({
+  as: Wrapper = "div",
   children,
-  forceRender,
-  root: Root = "div",
   triggerOnce = true,
-  unwrap = true,
+  ...props
 }) => {
-  children = <React.Activity>{children}</React.Activity>;
-
-  const [ref, entry] = useIntersectionObserver({
-    threshold: 0,
+  const [setIntersection, isIntersected] = useIntersection({
+    rootRef: undefined,
   });
 
-  const RootProps = {
-    "data-inview": entry?.isIntersecting,
-  };
+  useProgressWhen(!isIntersected);
 
-  if (RootProps["data-inview"] && triggerOnce)
-    return unwrap ? children : <Root {...RootProps}>{children}</Root>;
-
-  return (
-    <Root ref={ref} {...RootProps}>
-      {forceRender ? (
-        <React.Activity mode={RootProps["data-inview"] ? "visible" : "hidden"}>
-          {children}
-        </React.Activity>
-      ) : (
-        RootProps["data-inview"] && children
-      )}
-    </Root>
+  return isIntersected && triggerOnce ? (
+    children
+  ) : (
+    <Slot.Root ref={setIntersection}>
+      <Wrapper {...props}>{isIntersected && children}</Wrapper>
+    </Slot.Root>
   );
 };
 
-export const InView = ({ children, fallback = children, ...props }) => (
-  <ClientOnly fallback={fallback}>
-    <InternalInView {...props}>{children}</InternalInView>
-  </ClientOnly>
+export const InView = Object.assign(
+  ({ children, fallback = children, ...props }) => (
+    <ClientOnly fallback={fallback}>
+      <Intersection {...props}>{children}</Intersection>
+    </ClientOnly>
+  ),
+  {
+    with: (Component, InViewProps) => (props) => (
+      <InView {...InViewProps}>
+        <Component {...props} />
+      </InView>
+    ),
+  },
 );

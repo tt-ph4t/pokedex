@@ -1,13 +1,11 @@
 import { Callout } from "fumadocs-ui/components/callout";
 
-import { RouterActions } from "@/components/client";
 import { Pokedex } from "@/misc/pokedex-promise-v2";
 
 export default () => (
-  <Pokedex>
+  <Pokedex.Page>
     <Callout title="404" type="error">
       This page could not be found.
-      <RouterActions />
     </Callout>
-  </Pokedex>
+  </Pokedex.Page>
 );

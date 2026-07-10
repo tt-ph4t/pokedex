@@ -1,5 +1,5 @@
 import { chunk, isPlainObject, noop } from "es-toolkit";
-import { isEmpty } from "es-toolkit/compat";
+import { castArray, isEmpty } from "es-toolkit/compat";
 import React from "react";
 import romanize from "romanize";
 
@@ -11,35 +11,36 @@ export const table = Object.assign(
   (thead = [], tbody = [], tfoot) => {
     if (thead.length || tbody.length)
       return (
-        <InView>
-          <table>
-            <thead>
-              <tr>
-                {thead.map((value, index) => (
-                  <th key={index}>{titleCase(value)}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {tbody.map((value, index) => (
-                <tr key={index}>
-                  {value.map((value, index) => (
-                    <td key={index}>{value}</td>
-                  ))}
-                </tr>
+        <table>
+          <thead>
+            <tr>
+              {thead.map((a, b) => (
+                <th key={b}>{titleCase(a)}</th>
               ))}
-            </tbody>
-            <tfoot>{tfoot}</tfoot>
-          </table>
-        </InView>
+            </tr>
+          </thead>
+          <tbody>
+            {tbody.map((a, b) => (
+              <tr key={b}>
+                <InView as="td">
+                  {castArray(a).map((a, b) => (
+                    <td key={b}>{a}</td>
+                  ))}
+                </InView>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>{tfoot}</tfoot>
+        </table>
       );
   },
   {
     pagination: Object.assign(
-      (items, { renderRows = noop, showIndex = true, thead }) => {
+      (
+        items,
+        { chunkSize = 100, renderCells = noop, showIndex = true, thead },
+      ) => {
         if (isEmpty(items)) return;
-
-        const chunkSize = 100;
 
         return tabs(
           Object.fromEntries(
@@ -48,7 +49,11 @@ export const table = Object.assign(
               table(
                 thead,
                 items.map((context, index2) => {
-                  const [firstRow, ...rows] = renderRows({ context });
+                  const [firstCell, ...cells] = castArray(
+                    renderCells({
+                      context,
+                    }),
+                  );
 
                   return [
                     <span>
@@ -62,9 +67,9 @@ export const table = Object.assign(
                           {". "}
                         </span>
                       )}
-                      {firstRow}
+                      {firstCell}
                     </span>,
-                    ...rows,
+                    ...cells,
                   ];
                 }),
               ),
@@ -73,19 +78,19 @@ export const table = Object.assign(
         );
       },
       {
-        fromObject: (object, { renderKey, renderValue }) => {
-          if (isPlainObject(object))
-            return table.pagination(Object.entries(object), {
-              renderRows: ({ context }) => [
-                renderKey(context[0]),
-                table.pagination.fromObject(context[1], {
+        object: (value, { renderKey = noop, renderValue = noop }) => {
+          if (isPlainObject(value))
+            return table.pagination(Object.entries(value), {
+              renderCells: ({ context: [a, b] }) => [
+                renderKey(a),
+                table.pagination.object(b, {
                   renderKey,
                   renderValue,
                 }),
               ],
             });
 
-          return renderValue(object);
+          return renderValue(value);
         },
       },
     ),
@@ -95,21 +100,21 @@ export const table = Object.assign(
 export const list = Object.assign(
   (...items) => (
     <ul>
-      {items.map((item, index) => (
-        <li key={index}>{item}</li>
+      {items.map((a, b) => (
+        <li key={b}>{a}</li>
       ))}
     </ul>
   ),
   {
     inline: (...items) =>
-      items.map((item, index) => {
+      items.map((a, b) => {
         const penultimateIndex = items.length - 2;
 
         return (
-          <React.Fragment key={index}>
-            {item}
-            {index < penultimateIndex && ", "}
-            {index === penultimateIndex && " and "}
+          <React.Fragment key={b}>
+            {a}
+            {b < penultimateIndex && ", "}
+            {b === penultimateIndex && " and "}
           </React.Fragment>
         );
       }),

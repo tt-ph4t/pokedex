@@ -2,9 +2,10 @@ import { Geist } from "next/font/google";
 
 import { SITE } from "@/misc/contants";
 
-import "./css/index.css";
+import ForesightProgressBridge from "./foresight-progress-bridge";
 import FumadocsUIProvider from "./fumadocs-ui-provider";
 import ProgressProvider from "./progress-provider";
+import "./styles/index.css";
 
 const font = Geist();
 
@@ -18,7 +19,10 @@ export default ({ children }) => (
   <html className={font.className} lang={SITE.LOCALE} suppressHydrationWarning>
     <body style={requiredStyles}>
       <ProgressProvider>
-        <FumadocsUIProvider>{children}</FumadocsUIProvider>
+        <FumadocsUIProvider>
+          {children}
+          <ForesightProgressBridge />
+        </FumadocsUIProvider>
       </ProgressProvider>
     </body>
   </html>

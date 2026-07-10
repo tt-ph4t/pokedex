@@ -2,9 +2,8 @@ import { Feed } from "feed";
 
 import names from "@/app/api/names/data.json";
 import { getOgUrl } from "@/misc";
+import { SITE } from "@/misc/contants";
 import { titleCase } from "@/misc/title-case";
-
-import { SITE } from "../contants";
 
 export const feed = new Feed({
   id: SITE.URL,
@@ -22,7 +21,11 @@ for (const [a, b] of Object.entries(names)) {
     const title = titleCase(c);
 
     feed.addItem({
-      category: [{ name: categoryName }],
+      category: [
+        {
+          name: categoryName,
+        },
+      ],
       date: SITE.DATE,
       id: link,
       image: {
