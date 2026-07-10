@@ -1,4 +1,4 @@
-import { SITE } from "./contants";
+import { SITE } from "@/misc/contants";
 
 export const getOgUrl = (searchParams) => {
   const url = new URL(`${SITE.URL}/api/og`);

@@ -3,7 +3,7 @@ import deromanize from "deromanize";
 import removeAccents from "remove-accents";
 import { titleCase as title, WORD_SEPARATORS } from "title-case";
 
-import { SITE } from "./contants";
+import { SITE } from "@/misc/contants";
 
 const defaultOptions = {
   locale: SITE.LOCALE,
