@@ -75,9 +75,14 @@ export const Checkbox = ({ checked, children, ...props }) => {
         gap: "var(--spacing)",
       }}
     >
-      <Slot.Root readOnly type="checkbox">
-        <input checked={checked} disabled={!checked} id={id} {...props} />
-      </Slot.Root>
+      <input
+        readOnly
+        type="checkbox"
+        checked={checked}
+        disabled={!checked}
+        id={id}
+        {...props}
+      />
       <label htmlFor={id}>{children}</label>
     </div>
   );

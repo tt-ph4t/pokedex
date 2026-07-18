@@ -50,9 +50,6 @@ export const LazyImage = InView.with(({ fallback, src, ...props }) => {
   return (
     <Avatar.Root>
       <Slot.Root
-        {...defaultProps}
-        decoding="async"
-        loading="lazy"
         onDoubleClick={() => {
           prompt(undefined, defaultProps.src);
         }}
@@ -64,7 +61,12 @@ export const LazyImage = InView.with(({ fallback, src, ...props }) => {
           userSelect: "none",
         }}
       >
-        <Avatar.Image {...props} />
+        <Avatar.Image
+          {...defaultProps}
+          decoding="async"
+          loading="lazy"
+          {...props}
+        />
       </Slot.Root>
       <Avatar.Fallback>{fallback}</Avatar.Fallback>
     </Avatar.Root>
